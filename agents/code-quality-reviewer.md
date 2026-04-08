@@ -2,6 +2,7 @@
 name: code-quality-reviewer
 description: "Reviews code quality across five axes: correctness, readability, architecture, security, performance"
 model: inherit
+blocking: true
 ---
 
 # Code Quality Reviewer
@@ -63,3 +64,17 @@ For each finding, produce:
 - Do not generate generic advice. Every finding must be grounded in the actual diff.
 - If you find nothing of a given severity, say so. Do not fabricate issues to fill a quota.
 - Praise what is done well — specific, concrete observations, not generic compliments.
+
+## Structured Result
+
+Append this block at the end of your report:
+
+```
+---AGENT_RESULT---
+STATUS: PASS | FAIL
+ISSUES_FOUND: [count]
+P0_COUNT: [count]
+P1_COUNT: [count]
+BLOCKING: true
+---END_RESULT---
+```

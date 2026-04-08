@@ -2,6 +2,7 @@
 name: plan-alignment-reviewer
 description: Verifies implementation matches the plan from docs/spec/02-plan.md
 model: inherit
+blocking: true
 ---
 
 # Plan Alignment Reviewer
@@ -45,3 +46,17 @@ For each finding, produce:
 - If a file is listed in the plan, you MUST open it.
 - If an acceptance criterion exists, you MUST find its evidence in code or tests.
 - Report what you see, not what you expect to see.
+
+## Structured Result
+
+Append this block at the end of your report:
+
+```
+---AGENT_RESULT---
+STATUS: PASS | FAIL
+ISSUES_FOUND: [count]
+P0_COUNT: [count]
+P1_COUNT: [count]
+BLOCKING: true
+---END_RESULT---
+```
