@@ -1,0 +1,19 @@
+{
+  "name": "joao-toolkit-marketplace",
+  "owner": {
+    "name": "Joao"
+  },
+  "metadata": {
+    "description": "Local development toolkit marketplace"
+  },
+  "plugins": [
+    {
+      "name": "joao-toolkit",
+      "source": {
+        "source": "github",
+        "repo": "joao/joao-toolkit"
+      },
+      "description": "Structured development pipeline: brainstorm, plan, revise, execute (TDD), review, commit."
+    }
+  ]
+}
