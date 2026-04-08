@@ -29,10 +29,43 @@ with open(sys.argv[1], 'r') as f:
 print(json.dumps(content))
 " "$SKILL_FILE")"
 
-# Output the injection payload
-cat <<EOF
+# Check for stalled pipeline artifacts
+STALLED_MSG=""
+
+# Check new per-session folder convention
+if [ -d "docs" ]; then
+  LATEST_SPEC=$(find docs -maxdepth 1 -type d -name "20*" 2>/dev/null | sort -r | head -1)
+  if [ -n "$LATEST_SPEC" ]; then
+    if [ ! -f "$LATEST_SPEC/04-code-review.md" ]; then
+      STALLED_MSG="STALLED PIPELINE DETECTED in $LATEST_SPEC. Run /dev to resume or start fresh."
+    fi
+  fi
+fi
+
+# Check legacy docs/spec/ location
+if [ -z "$STALLED_MSG" ] && [ -d "docs/spec" ]; then
+  LATEST_ARTIFACT=$(ls -t docs/spec/*.md 2>/dev/null | head -1)
+  if [ -n "$LATEST_ARTIFACT" ] && [ ! -f "docs/spec/04-code-review.md" ]; then
+    STALLED_MSG="STALLED PIPELINE DETECTED in docs/spec/. Run /dev to resume or start fresh."
+  fi
+fi
+
+# Build the message with optional stalled pipeline warning
+if [ -n "$STALLED_MSG" ]; then
+  STALLED_ESCAPED="$(python3 -c "import json; print(json.dumps('$STALLED_MSG'))")"
+  cat <<EOF
+{
+  "priority": "IMPORTANT",
+  "message": $ESCAPED,
+  "stalledPipeline": $STALLED_ESCAPED
+}
+EOF
+else
+  # Output the injection payload
+  cat <<EOF
 {
   "priority": "IMPORTANT",
   "message": $ESCAPED
 }
 EOF
+fi
