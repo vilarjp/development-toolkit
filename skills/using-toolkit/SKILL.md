@@ -17,6 +17,7 @@ When a task arrives, identify the phase and apply the corresponding skill:
 Task arrives
     |
     +-- Full feature/change? ------------> /dev (full pipeline)
+    +-- Bug fix / something broken? -----> /dev (resolve mode)
     +-- Exploring a problem? ------------> /brainstorm (phase 1)
     +-- Have a brainstorm, need plan? ---> /plan (phase 2)
     +-- Have plan, need review? ---------> /revise (phase 3)
@@ -120,23 +121,16 @@ You MUST:
 The full development pipeline is: Context -> Brainstorm -> Plan -> Revision -> Execute -> Review -> Commit
 
 ```
+Feature mode:
 /context -> /brainstorm -> /plan -> /revise -> /execute -> /review -> /commit
    P0          P1           P2       P3          P4          P5         P6
+
+Resolve mode (bug fixes):
+/context -> diagnosis -> fix (prove-it TDD) -> /review -> /commit
+   P0         P1R            P4R                 P5         P6
 ```
 
-Each phase produces a markdown artifact in `docs/spec/` that feeds the next phase. No phase can be skipped when running the full pipeline. Human approval gates exist between phases. No phase advances without explicit user confirmation.
-
-## Model Configuration
-
-| Phase | Model | Thinking Budget |
-|-------|-------|----------------|
-| 0. Context | claude-sonnet-4-6 | none |
-| 1. Brainstorm | claude-opus-4-6 | 10,000 tokens |
-| 2. Planning | claude-opus-4-6 | 10,000 tokens |
-| 3. Revision | claude-opus-4-6 | 10,000 tokens |
-| 4. Execution | claude-sonnet-4-6 | 5,000 tokens |
-| 5. Code Review | claude-sonnet-4-6 | 5,000 tokens |
-| 6. Commit/Push | claude-sonnet-4-6 | 5,000 tokens |
+Each phase produces a markdown artifact in a per-session folder under `docs/` (format: `docs/YYYY-MM-DD-short-description/`) that feeds the next phase. No phase can be skipped when running the full pipeline. Human approval gates exist between phases — their placement depends on the assessed complexity level.
 
 ## Failure Modes to Avoid
 
