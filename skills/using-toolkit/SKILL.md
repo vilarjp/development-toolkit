@@ -16,8 +16,9 @@ When a task arrives, identify the phase and apply the corresponding skill:
 ```
 Task arrives
     |
-    +-- Full feature/change? ------------> /dev (full pipeline)
-    +-- Bug fix / something broken? -----> /dev (resolve mode)
+    +-- Full feature/change? ------------> /dev (feature pipeline)
+    +-- Bug fix / something broken? -----> /resolve (resolve pipeline)
+    +-- Investigating a bug? ------------> /diagnose (phase 1R)
     +-- Exploring a problem? ------------> /brainstorm (phase 1)
     +-- Have a brainstorm, need plan? ---> /plan (phase 2)
     +-- Have plan, need review? ---------> /revise (phase 3)
@@ -103,63 +104,18 @@ You MUST:
 
 "It should work" is not evidence. "Tests pass: 47/47, 0 failures" is evidence.
 
-## Anti-Rationalization Table
-
-| Thought | Reality |
-|---------|---------|
-| "This is just a simple question" | Questions are tasks. Check for skills. |
-| "I need more context first" | Skill check comes BEFORE exploration. |
-| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
-| "I can handle this without a skill" | If a skill exists for it, use it. |
-| "The skill is overkill for this" | Simple things become complex. Use it. |
-| "I'll just do this one thing first" | Check BEFORE doing anything. |
-| "I already know the approach" | Knowing does not equal following the process. Invoke it. |
-| "The user seems to want a quick answer" | Speed without structure produces rework. |
-
 ## Pipeline Overview
 
-The full development pipeline is: Context -> Brainstorm -> Plan -> Revision -> Execute -> Review -> Commit
+Two pipelines exist for different work types:
 
 ```
-Feature mode:
+Feature pipeline (/dev):
 /context -> /brainstorm -> /plan -> /revise -> /execute -> /review -> /commit
    P0          P1           P2       P3          P4          P5         P6
 
-Resolve mode (bug fixes):
-/context -> diagnosis -> fix (prove-it TDD) -> /review -> /commit
-   P0         P1R            P4R                 P5         P6
+Resolve pipeline (/resolve):
+/context -> /diagnose -> fix (prove-it TDD) -> /review -> /commit
+   P0          P1R            P4R                P5         P6
 ```
 
-Each phase produces a markdown artifact in a per-session folder under `docs/` (format: `docs/YYYY-MM-DD-short-description/`) that feeds the next phase. No phase can be skipped when running the full pipeline. Human approval gates exist between phases — their placement depends on the assessed complexity level.
-
-## Failure Modes to Avoid
-
-### 1. Skipping Phase 0 (Context Loading)
-Starting work without understanding the project. Every assumption you make without context is a potential rework trigger.
-
-### 2. Premature Implementation
-Writing code before the brainstorm and plan are complete. "Let me just prototype this" always becomes the production code.
-
-### 3. Sycophantic Agreement
-Agreeing with the user's approach when you see problems. Your job is to surface issues, not to be liked.
-
-### 4. Scope Creep During Execution
-Adding features, refactoring adjacent code, or "improving" things outside the plan during implementation. The plan is the contract.
-
-### 5. Skipping Verification
-Claiming work is done without running tests and checking output. "It should work" is the phrase that precedes every production incident.
-
-### 6. Over-Engineering
-Adding abstractions, patterns, or infrastructure that the current requirements do not demand. YAGNI is not a suggestion.
-
-### 7. Under-Decomposition
-Creating plan steps that are too large (L or XL). Every step must be completable in one focused session and testable independently.
-
-### 8. False Parallelism
-Marking steps as PARALLEL when they share files, data flows, or mutable state. This causes merge conflicts and race conditions.
-
-### 9. Ignoring Project Conventions
-Introducing new patterns, naming conventions, or architectural approaches that conflict with the existing codebase. Extend what exists.
-
-### 10. Documentation Drift
-Writing spec artifacts that contradict each other. The revision phase exists to catch this -- do not skip it.
+Each phase produces a markdown artifact in a per-session folder under `docs/` (format: `docs/YYYY-MM-DD-short-description/`) that feeds the next phase. No phase can be skipped when running a pipeline. Human approval gates exist between phases.

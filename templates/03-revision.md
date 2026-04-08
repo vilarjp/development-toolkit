@@ -4,8 +4,8 @@ date: "{{date}}"
 status: draft
 topic: "{{topic}}"
 reviewed:
-  - "docs/spec/01-brainstorm.md"
-  - "docs/spec/02-plan.md"
+  - "{{spec_dir}}/01-brainstorm.md"
+  - "{{spec_dir}}/02-plan.md"
 ---
 
 # Revision: {{topic}}
