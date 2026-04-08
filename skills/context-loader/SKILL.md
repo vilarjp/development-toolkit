@@ -7,8 +7,6 @@ description: Use before any pipeline phase to scan and index the current project
 
 This is Phase 0 -- the pre-flight scan that runs before any thinking begins. Every subsequent phase depends on accurate project context. This phase is fast and cheap. Do not skip it.
 
-**Model:** claude-sonnet-4-6, no extended thinking needed.
-
 ## When to Run
 
 - Start of any new session
@@ -127,14 +125,20 @@ Examine 3-5 representative source files and 2-3 test files to detect these patte
 
 ### Step 6: Check for Existing Specs
 
-Look in `docs/spec/` for existing pipeline artifacts:
-- `01-brainstorm.md` -- has brainstorming been done?
-- `02-plan.md` -- has planning been done?
-- `03-revision.md` -- has revision been done?
+Look for pipeline artifacts in two locations:
+
+1. **Per-session directories** under `docs/` matching the pattern `docs/YYYY-MM-DD-*/`. Check the most recent one (sorted by name, descending).
+2. **Legacy location** at `docs/spec/`.
+
+In either location, look for:
+- `01-brainstorm.md` or `01-diagnosis.md` — has brainstorming or diagnosis been done?
+- `02-plan.md` — has planning been done?
+- `03-revision.md` — has revision been done?
+- `04-code-review.md` — has code review been done?
 
 If specs exist, read their frontmatter to check status (draft, approved, etc.). Note which phases have been completed and which are pending.
 
-If no `docs/spec/` directory exists, report "No active specs found."
+If no spec artifacts are found in either location, report "No active specs found."
 
 ### Step 7: Compile Project Context Block
 

@@ -7,8 +7,6 @@ description: Use when code is reviewed and ready to commit. Enforces branch safe
 
 Safely commit and push code changes with proper git hygiene. This phase enforces one absolute, inviolable rule: NEVER commit or push directly to master or main.
 
-**Model:** `claude-sonnet-4-6` with thinking budget 5,000 tokens.
-
 ## Prerequisites
 
 - Code review complete (Phase 5). `docs/spec/04-code-review.md` must exist with verdict APPROVE or REQUIRES CHANGES with all P0 issues resolved.
@@ -19,34 +17,44 @@ Safely commit and push code changes with proper git hygiene. This phase enforces
 
 Execute these phases in strict order. Do not skip phases. Do not bypass checks.
 
-### Phase 6.1 -- Branch Safety Check
+### Phase 6.1 -- Branch Name Input
 
 This is the first thing that happens. No exceptions.
 
-1. Get the current branch:
-   ```
-   git rev-parse --abbrev-ref HEAD
-   ```
+**Ask the user for the target branch name:**
 
-2. **If the branch is `master` or `main`:**
-   - REFUSE to commit. Do not stage files. Do not create a commit. Stop immediately.
-   - Derive a branch name from `docs/spec/01-brainstorm.md`:
-     - Read the `topic` field from the frontmatter
-     - Convert to kebab-case, lowercase, no special characters
-     - Determine the type prefix from the nature of the change:
-       - New feature: `feat/`
-       - Bug fix: `fix/`
-       - Maintenance: `chore/`
-       - Code restructuring: `refactor/`
-       - Documentation: `docs/`
-       - Test additions: `test/`
-   - Create and switch to the branch:
-     ```
-     git checkout -b <type>/<topic>
-     ```
-   - Report: "Refused to commit to [master/main]. Created branch `<type>/<topic>` and switched to it."
+```
+What branch should this be committed to?
 
-3. **If the branch is already a feature branch:** Proceed to Phase 6.2.
+Suggested: <type>/<topic-from-brainstorm> (e.g., feat/user-authentication)
+
+Please provide the branch name, or confirm the suggestion.
+```
+
+Derive the suggestion from the spec artifacts:
+- Read the `topic` field from the brainstorm or diagnosis frontmatter
+- Convert to kebab-case, lowercase, no special characters
+- Determine the type prefix: `feat/` for features, `fix/` for bug fixes, `chore/` for maintenance, `refactor/` for restructuring, `docs/` for documentation, `test/` for test additions
+
+**After receiving the branch name:**
+
+1. **Check if it is `master` or `main`:**
+   - REFUSE. Do not stage files. Do not create a commit. Explain why and ask for a different branch name.
+
+2. **Check if the branch exists remotely:**
+   ```
+   git ls-remote --heads origin <branch-name>
+   ```
+   - If it exists remotely: check out to it and pull latest changes.
+     ```
+     git checkout <branch-name> && git pull origin <branch-name>
+     ```
+   - If it does not exist remotely: create it locally.
+     ```
+     git checkout -b <branch-name>
+     ```
+
+3. Proceed to Phase 6.2.
 
 ### Phase 6.2 -- Pre-Commit Verification
 
@@ -133,9 +141,45 @@ Format every commit message as:
 - First line under 72 characters
 - Scope is the module or component name: `feat(auth): add login endpoint`
 - If the change is a breaking change, add `!` after the type: `feat!(api): remove deprecated login endpoint`
-- Body (optional, separated by blank line): explain WHY the change was made, not WHAT changed. The diff shows the what.
+- Body (mandatory for feature and fix commits, separated by blank line): explain WHY the change was made, not WHAT changed. The diff shows the what.
 - Reference the spec when applicable: "See docs/spec/02-plan.md Step 3"
 - Reference issues when applicable: "Closes #123" or "Fixes JIRA-456"
+
+**Testing scenarios section (mandatory in commit body for `feat` and `fix` types):**
+
+Include a "Testing scenarios" section written from a QA perspective — not a developer perspective. The goal is to help QA reproduce and validate the change. Use a before/after format:
+
+```
+Testing scenarios:
+
+[Scenario name]
+Before: <what happened before this change>
+After: <what should happen now>
+
+[Scenario name]
+Before: <what happened before this change>
+After: <what should happen now>
+```
+
+Example:
+```
+feat(cart): add empty cart message on checkout
+
+Previously, clicking checkout with an empty cart caused a 500 error.
+Now it shows a user-friendly message.
+
+Testing scenarios:
+
+Empty cart checkout
+Before: Clicking "Checkout" with no items causes a server error page
+After: Shows message "Your cart is empty" with a link to continue shopping
+
+Cart with items checkout
+Before: Works normally
+After: No change — still proceeds to payment as before
+```
+
+Include as many scenarios as are relevant to the change. Keep language clear and non-technical enough for a QA engineer to follow without reading the code.
 
 **Before writing the message**, check the project's recent git log:
 ```
