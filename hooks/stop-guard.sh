@@ -8,7 +8,7 @@ set -uo pipefail
 # infinite loops at approval gates (where the assistant pauses for user input but
 # the pipeline appears incomplete to the hook).
 
-COOLDOWN_FILE="/tmp/joao-toolkit-stop-guard-last-fire"
+COOLDOWN_FILE="/tmp/development-toolkit-stop-guard-last-fire"
 COOLDOWN_SECONDS=60
 
 if [ -f "$COOLDOWN_FILE" ]; then
@@ -65,7 +65,7 @@ fi
 # - OR code review exists but there are uncommitted changes
 if [ "$HAS_BRAINSTORM" = true ] && [ "$HAS_REVIEW" = false ]; then
   date +%s > "$COOLDOWN_FILE"
-  echo "STOP BLOCKED by joao-toolkit stop-guard:"
+  echo "STOP BLOCKED by development-toolkit stop-guard:"
   echo "  Active pipeline detected in $SPEC_DIR."
   echo "  Pipeline has not completed code review."
   echo "  Run /review to complete the review, or /commit to finalize."
@@ -75,7 +75,7 @@ fi
 
 if [ "$HAS_REVIEW" = true ] && [ "$HAS_COMMITS" = false ]; then
   date +%s > "$COOLDOWN_FILE"
-  echo "STOP BLOCKED by joao-toolkit stop-guard:"
+  echo "STOP BLOCKED by development-toolkit stop-guard:"
   echo "  Code review is complete but changes are not committed."
   echo "  Run /commit to commit and push changes."
   exit 2

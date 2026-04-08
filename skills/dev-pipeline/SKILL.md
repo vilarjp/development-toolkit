@@ -62,13 +62,13 @@ Each pipeline phase maps to a specific skill. **You MUST invoke that skill using
 
 | Phase | Skill to invoke via `Skill` tool |
 |-------|----------------------------------|
-| 0 | `joao-toolkit:context-loader` |
-| 1 | `joao-toolkit:brainstorm` |
-| 2 | `joao-toolkit:plan` |
-| 3 | `joao-toolkit:revision` |
-| 4 / 4R | `joao-toolkit:execute` (which internally enforces `joao-toolkit:tdd`) |
-| 5 | `joao-toolkit:code-review` |
-| 6 | `joao-toolkit:commit-push` |
+| 0 | `development-toolkit:context-loader` |
+| 1 | `development-toolkit:brainstorm` |
+| 2 | `development-toolkit:plan` |
+| 3 | `development-toolkit:revision` |
+| 4 / 4R | `development-toolkit:execute` (which internally enforces `development-toolkit:tdd`) |
+| 5 | `development-toolkit:code-review` |
+| 6 | `development-toolkit:commit-push` |
 
 **If you find yourself executing a phase's logic without having called `Skill` for that phase, STOP. You are violating the pipeline protocol. Go back and invoke the skill.**
 
@@ -180,7 +180,7 @@ These gates are non-negotiable. No rationalization bypasses them. "The user seem
 
 ### Phase 4 -- Execution
 
-**YOU MUST** invoke the `execute` skill via `Skill: joao-toolkit:execute` before writing any code. Do not manually replicate TDD steps. Do not dispatch subagents without loading the skill first. The skill orchestrates execution waves, TDD enforcement, and failure handling.
+**YOU MUST** invoke the `execute` skill via `Skill: development-toolkit:execute` before writing any code. Do not manually replicate TDD steps. Do not dispatch subagents without loading the skill first. The skill orchestrates execution waves, TDD enforcement, and failure handling.
 
 The execute skill will:
 1. Parse `02-plan.md` (as amended by `03-revision.md`) into the dependency graph and Execution Waves table
@@ -218,7 +218,7 @@ After Phase 4 completes, the execute skill runs a final verification:
 
 ### Phase 5 -- Code Review
 
-**YOU MUST** invoke the `code-review` skill via `Skill: joao-toolkit:code-review` before dispatching any reviewer agents. Do not dispatch reviewer subagents directly. The skill handles diff partitioning, agent dispatch, result collection, deduplication, and severity classification. Bypassing it produced degraded results in past sessions.
+**YOU MUST** invoke the `code-review` skill via `Skill: development-toolkit:code-review` before dispatching any reviewer agents. Do not dispatch reviewer subagents directly. The skill handles diff partitioning, agent dispatch, result collection, deduplication, and severity classification. Bypassing it produced degraded results in past sessions.
 
 The code-review skill will:
 1. Compute the full diff against the base branch
@@ -262,7 +262,7 @@ Options:
 
 ### Phase 6 -- Commit and Push
 
-**YOU MUST** invoke the `commit-push` skill via `Skill: joao-toolkit:commit-push` before running any git commands. Do not run `git add`, `git commit`, or `git push` directly. The skill enforces branch safety, pre-commit verification, logical commit splitting, testing scenario documentation, and rebase-before-push. Skipping it caused a user to catch missing testing scenarios in a past session.
+**YOU MUST** invoke the `commit-push` skill via `Skill: development-toolkit:commit-push` before running any git commands. Do not run `git add`, `git commit`, or `git push` directly. The skill enforces branch safety, pre-commit verification, logical commit splitting, testing scenario documentation, and rebase-before-push. Skipping it caused a user to catch missing testing scenarios in a past session.
 
 The commit-push skill will:
 1. Verify the current branch is NOT master/main (create a feature branch if needed, derived from brainstorm topic)
@@ -308,17 +308,17 @@ In resolve mode, fewer phases run. This table is the authoritative reference for
 
 | Phase | Skill to invoke | Notes |
 |-------|----------------|-------|
-| 0 | `joao-toolkit:context-loader` | Same as feature mode |
-| 1R | `joao-toolkit:brainstorm` (diagnosis mode) | Produces `01-diagnosis.md`, NOT `01-brainstorm.md` |
-| 4R | `joao-toolkit:execute` | Reads `01-diagnosis.md` instead of `02-plan.md`. Internally enforces TDD. |
-| 5 | `joao-toolkit:code-review` | Same as feature mode |
-| 6 | `joao-toolkit:commit-push` | Same as feature mode |
+| 0 | `development-toolkit:context-loader` | Same as feature mode |
+| 1R | `development-toolkit:brainstorm` (diagnosis mode) | Produces `01-diagnosis.md`, NOT `01-brainstorm.md` |
+| 4R | `development-toolkit:execute` | Reads `01-diagnosis.md` instead of `02-plan.md`. Internally enforces TDD. |
+| 5 | `development-toolkit:code-review` | Same as feature mode |
+| 6 | `development-toolkit:commit-push` | Same as feature mode |
 
 **Skipped in resolve mode:** Phase 2 (`plan`), Phase 3 (`revision`).
 
 **If TRIVIAL escape hatch is approved:** Skip Phases 4R and 5. Go directly from diagnosis to Phase 6 (`commit-push`). See the Trivial Escape Hatch section below.
 
-**The skill for Phase 4R is `joao-toolkit:execute`, NOT `joao-toolkit:tdd`.** The execute skill internally loads and enforces TDD. Invoking `tdd` directly bypasses execution orchestration (dependency graph parsing, wave management, failure handling).
+**The skill for Phase 4R is `development-toolkit:execute`, NOT `development-toolkit:tdd`.** The execute skill internally loads and enforces TDD. Invoking `tdd` directly bypasses execution orchestration (dependency graph parsing, wave management, failure handling).
 
 ### Phase 0 -- Context Loading (same as feature mode)
 
@@ -369,23 +369,23 @@ Model override (optional — inherited model is used by default):
 **Trivial Escape Hatch:** If the diagnosis severity is TRIVIAL AND the user approves the trivial path ("apply", "proceed", or any approval keyword):
 
 The pipeline enters **TRIVIAL mode**. The following phases are **LOCKED OUT** — do NOT invoke them:
-- Phase 4R (Fix) — DO NOT invoke `joao-toolkit:execute` or `joao-toolkit:tdd`
-- Phase 5 (Code Review) — DO NOT invoke `joao-toolkit:code-review` or dispatch reviewer agents
+- Phase 4R (Fix) — DO NOT invoke `development-toolkit:execute` or `development-toolkit:tdd`
+- Phase 5 (Code Review) — DO NOT invoke `development-toolkit:code-review` or dispatch reviewer agents
 
 **TRIVIAL mode steps (the ONLY steps allowed):**
 1. Apply the fix directly (the suggested fix from `01-diagnosis.md`)
 2. Write the regression test (the reproduction test from `01-diagnosis.md`)
 3. Run the full test suite
-4. If tests pass: proceed directly to Phase 6 — invoke `Skill: joao-toolkit:commit-push`
+4. If tests pass: proceed directly to Phase 6 — invoke `Skill: development-toolkit:commit-push`
 5. If tests fail: fix and retry up to 3 times. If still failing, escalate to user.
 
-**TRIVIAL mode guard:** If you find yourself about to invoke `joao-toolkit:execute`, `joao-toolkit:tdd`, `joao-toolkit:code-review`, or dispatch any reviewer agent after the trivial escape hatch was approved — STOP. You are violating TRIVIAL mode. The user approved the shortcut. Respect it.
+**TRIVIAL mode guard:** If you find yourself about to invoke `development-toolkit:execute`, `development-toolkit:tdd`, `development-toolkit:code-review`, or dispatch any reviewer agent after the trivial escape hatch was approved — STOP. You are violating TRIVIAL mode. The user approved the shortcut. Respect it.
 
 If the user declines the trivial path ("full pipeline"): continue with the full resolve pipeline below (Phase 4R -> TEST GATE -> Phase 5 -> Phase 6).
 
 ### Phase 4R -- Fix (Prove-It TDD)
 
-**YOU MUST** invoke the `execute` skill via `Skill: joao-toolkit:execute` before writing any fix code. The skill enforces TDD discipline (RED→GREEN→REFACTOR). Do not manually follow TDD steps without loading the skill first.
+**YOU MUST** invoke the `execute` skill via `Skill: development-toolkit:execute` before writing any fix code. The skill enforces TDD discipline (RED→GREEN→REFACTOR). Do not manually follow TDD steps without loading the skill first.
 
 Invoke the skill with the following modifications:
 1. Read `01-diagnosis.md` instead of `02-plan.md`

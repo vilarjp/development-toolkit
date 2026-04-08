@@ -12,7 +12,7 @@ if [[ ! -f "$SKILL_FILE" ]]; then
   cat <<'WARN_EOF'
 {
   "priority": "IMPORTANT",
-  "message": "[joao-toolkit] Warning: skills/using-toolkit/SKILL.md not found. The toolkit is installed but the meta-skill could not be loaded. Run /context to verify your installation."
+  "message": "[development-toolkit] Warning: skills/using-toolkit/SKILL.md not found. The toolkit is installed but the meta-skill could not be loaded. Run /context to verify your installation."
 }
 WARN_EOF
   exit 0
