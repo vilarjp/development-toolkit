@@ -1,16 +1,28 @@
-# joao-toolkit
+# development-toolkit
 
-A Claude Code plugin that enforces spec-driven development through a structured pipeline: brainstorm, plan, revise, execute, review, commit.
+A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that enforces spec-driven development through a structured pipeline: brainstorm, plan, revise, execute, review, commit.
+
+Every feature goes through a full cycle of exploration, planning, TDD implementation, and multi-axis code review before it reaches a commit. Bug fixes follow a shortened resolve pipeline with structured diagnosis and prove-it TDD. Human approval gates ensure nothing ships without your sign-off.
+
+## Prerequisites
+
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and authenticated
 
 ## Installation
 
-Add a shell alias that loads the plugin on every session. In your `~/.zshrc` (or `~/.bashrc`):
+### Option 1: Shell alias (recommended)
+
+Clone the repo and add a shell alias so the plugin loads on every Claude Code session:
 
 ```bash
-alias claude='claude --plugin-dir ~/dev/joao-toolkit'
+git clone https://github.com/vilarjp/development-toolkit.git ~/development-toolkit
 ```
 
-If you use a custom alias (e.g. `claudio`), it inherits automatically since the base `claude` command now includes the flag.
+Add to your `~/.zshrc` (or `~/.bashrc`):
+
+```bash
+alias claude='claude --plugin-dir ~/development-toolkit'
+```
 
 Reload your shell:
 
@@ -18,132 +30,150 @@ Reload your shell:
 source ~/.zshrc
 ```
 
-Validate the plugin:
+### Option 2: One-off loading
+
+Load the plugin for a single session without installing:
 
 ```bash
-claude plugin validate ~/dev/joao-toolkit
-# Should show: ✔ Validation passed
+claude --plugin-dir /path/to/development-toolkit
 ```
 
-Since `--plugin-dir` points to the source directory, any edits to the toolkit take effect immediately — no reinstall needed.
+### Verify installation
 
-## Pipeline overview
+Start a Claude Code session and run:
 
-### Feature mode
+```
+/context
+```
 
-| Phase | Command | Artifact | Model | Thinking Budget |
-|-------|---------|----------|-------|-----------------|
-| 0 | `/context` | (in-memory) | claude-sonnet-4-6 | none |
-| 1 | `/brainstorm` | `01-brainstorm.md` | claude-opus-4-6 | 10,000 tokens |
-| 2 | `/plan` | `02-plan.md` | claude-opus-4-6 | 10,000 tokens |
-| 3 | `/revise` | `03-revision.md` | claude-opus-4-6 | 10,000 tokens |
-| | **HUMAN APPROVAL GATES** (complexity-based) | | | |
-| 4 | `/execute` | source code + tests | claude-sonnet-4-6 | 5,000 tokens |
-| | **TEST GATE** | | | |
-| 5 | `/review` | `04-code-review.md` | claude-sonnet-4-6 | 5,000 tokens |
-| | **HUMAN APPROVAL GATE** (if P0 issues from BLOCKING reviewers) | | | |
-| 6 | `/commit` | git history | claude-sonnet-4-6 | 5,000 tokens |
+You should see a project context scan output. If the toolkit loaded correctly, the `/dev`, `/brainstorm`, `/plan`, `/revise`, `/execute`, `/review`, and `/commit` slash commands will be available.
 
-### Resolve mode (bug fixes)
+## Quick start
 
-| Phase | Artifact | Model | Thinking Budget |
-|-------|----------|-------|-----------------|
-| 0 | (in-memory) | claude-sonnet-4-6 | none |
-| 1R | `01-diagnosis.md` | claude-opus-4-6 | 10,000 tokens |
-| | **HUMAN APPROVAL GATE** (diagnosis review) | | |
-| 4R | source code + tests (prove-it TDD) | claude-sonnet-4-6 | 5,000 tokens |
-| | **TEST GATE** | | |
-| 5 | `04-code-review.md` | claude-sonnet-4-6 | 5,000 tokens |
-| 6 | git history | claude-sonnet-4-6 | 5,000 tokens |
+```
+# Start a full feature pipeline
+/dev add user authentication with JWT tokens
 
-All artifacts are saved in a per-session folder: `docs/YYYY-MM-DD-short-description/`.
+# Just brainstorm an idea
+/brainstorm how should we structure the caching layer
 
-Run `/dev` to execute the full pipeline end-to-end. Bug-related requests automatically enter resolve mode.
+# Fix a bug
+/dev fix the race condition in the payment handler
 
-## Available commands
-
-| Command | Description |
-|---------|-------------|
-| `/dev <description>` | Full pipeline from brainstorm through commit |
-| `/brainstorm <topic>` | Explore a problem before committing to a direction |
-| `/plan [path]` | Create implementation plan from brainstorm |
-| `/revise` | Cross-check brainstorm and plan for gaps |
-| `/execute [path]` | Execute plan using TDD with parallel subagents |
-| `/review` | Structured code review with five reviewer agents |
-| `/commit [message]` | Safe git commit and push (never to main/master) |
-| `/tdd <description>` | Enter TDD mode: RED, GREEN, REFACTOR |
-| `/context` | Load and display current project context |
+# Run individual phases
+/context          # scan project structure
+/brainstorm       # explore options
+/plan             # create implementation plan
+/revise           # cross-check for gaps
+/execute          # implement with TDD
+/review           # multi-axis code review
+/commit           # safe commit and push
+```
 
 ## How it works
 
-Each phase produces a markdown artifact in `docs/spec/`. Each subsequent phase reads the previous artifacts, creating a durable chain of accountability:
+The toolkit runs a structured pipeline where each phase produces a markdown artifact. Each subsequent phase reads the previous artifacts, creating a durable chain of accountability.
 
-1. **Context** scans the project structure, config files, conventions, and existing specs
-2. **Brainstorm** explores options through Socratic questioning and selects a direction
-3. **Plan** decomposes the direction into implementation steps with `[PARALLEL]`/`[SEQUENTIAL]` classification, acceptance criteria, and test strategies
-4. **Revise** cross-references brainstorm against plan to catch gaps, validates the dependency graph, and checks feasibility against the project context
-5. **Execute** dispatches parallel subagents per the plan's Execution Waves table, enforcing TDD (RED, GREEN, REFACTOR) for every change
-6. **Review** launches five specialized reviewer agents in parallel to evaluate correctness, readability, architecture, security, and performance
-7. **Commit** creates conventional commits on a feature branch with branch protection enforced by hooks
+### Feature pipeline
 
-### Gates
+```
+Context -> Brainstorm -> Plan -> Revise -> [APPROVAL] -> Execute -> [TESTS] -> Review -> [APPROVAL] -> Commit
+```
 
-- **Human Approval Gate #1** — after revision, before any code is written. All three spec documents must be reviewed and approved.
-- **Test Gate** — after execution. All tests must pass before code review begins.
-- **Human Approval Gate #2** — after code review, only if critical (P0) issues are found.
+| Phase | Command | Artifact | What happens |
+|-------|---------|----------|--------------|
+| 0 | `/context` | (in-memory) | Scans project structure, config, conventions |
+| 1 | `/brainstorm` | `01-brainstorm.md` | Explores options via Socratic questioning, selects a direction |
+| 2 | `/plan` | `02-plan.md` | Decomposes into implementation steps with parallel/sequential classification |
+| 3 | `/revise` | `03-revision.md` | Cross-references brainstorm against plan to catch gaps |
+| | | | **Human approval gate** |
+| 4 | `/execute` | source code + tests | Dispatches parallel subagents, enforces TDD (RED-GREEN-REFACTOR) |
+| | | | **Test gate** (all tests must pass) |
+| 5 | `/review` | `04-code-review.md` | Five specialized reviewer agents evaluate the diff |
+| | | | **Human approval gate** (only if critical issues found) |
+| 6 | `/commit` | git history | Conventional commits on a feature branch |
 
-### Parallelization
+All artifacts are saved in a per-session folder: `docs/YYYY-MM-DD-short-description/`.
 
-Tasks in the plan are classified as `[PARALLEL]` or `[SEQUENTIAL]`:
-- `[PARALLEL]` — no shared files, no data dependencies, dispatched as concurrent subagents
-- `[SEQUENTIAL]` — depends on another task's output or touches shared files
+### Resolve pipeline (bug fixes)
 
-The plan's Execution Waves table groups tasks into waves. Within each wave, parallel tasks run concurrently. After each wave, the full test suite runs.
+Bug-related requests automatically enter a shortened pipeline optimized for diagnosis and targeted fixes:
 
-### TDD enforcement
+| Phase | Artifact | What happens |
+|-------|----------|--------------|
+| 0 | (in-memory) | Context scan |
+| 1R | `01-diagnosis.md` | Structured bug investigation with root-cause tracing |
+| | | **Human approval gate** (diagnosis review) |
+| 4R | source code + tests | Prove-it TDD: reproduction test first, then minimal fix |
+| | | **Test gate** |
+| 5 | `04-code-review.md` | Same review process as feature mode |
+| 6 | git history | Commit and push |
 
-Every subagent follows the RED-GREEN-REFACTOR cycle:
-1. Write a failing test (RED)
-2. Write minimum code to pass (GREEN)
-3. Refactor while green (REFACTOR)
+Trivial bugs get an escape hatch: if the diagnosis classifies the fix as trivial, you can skip execution and review phases entirely.
 
-No production code without a failing test first. No exceptions.
+## Gates
+
+The pipeline has built-in checkpoints that require your explicit approval:
+
+- **Human Approval Gate #1** -- after revision, before any code is written. The number and placement of gates adapts to the complexity classification from the brainstorm phase.
+- **Test Gate** -- after execution. All tests must pass before code review begins.
+- **Human Approval Gate #2** -- after code review, only if critical (P0) issues are found.
+
+No gate is bypassed automatically. Silence is not approval.
 
 ## Agents
 
 ### Reviewer agents (Phase 5)
 
-| Agent | Focus | Dispatched | Blocking |
-|-------|-------|------------|----------|
-| plan-alignment-reviewer | Code matches the plan's acceptance criteria | Always | **BLOCKING** |
-| code-quality-reviewer | Correctness, readability, architecture, security, performance | Always | **BLOCKING** |
-| convention-reviewer | Project convention adherence | Always | Non-blocking |
-| test-reviewer | Test quality, coverage, anti-patterns | Always | **BLOCKING** |
-| security-reviewer | OWASP Top 10, auth, input validation, PCI/e-commerce | When diff touches auth/input/APIs/payments | **BLOCKING** |
+| Agent | Focus | Blocking |
+|-------|-------|----------|
+| plan-alignment-reviewer | Code matches the plan's acceptance criteria | Yes |
+| code-quality-reviewer | Correctness, readability, architecture, security, performance | Yes |
+| convention-reviewer | Project convention adherence | No |
+| test-reviewer | Test quality, coverage, anti-patterns | Yes |
+| security-reviewer | OWASP Top 10, auth, input validation, PCI/e-commerce | Yes (conditional) |
 
-### Investigation agents (Resolve mode)
+The security reviewer is dispatched only when the diff touches auth, user input, APIs, data storage, or payment code.
 
-| Agent | Focus | Dispatched | Blocking |
-|-------|-------|------------|----------|
-| resolve-investigator | Root-cause tracing, hypothesis generation, reproduction tests | Resolve mode Phase 1R | **BLOCKING** |
+### Investigation agent (Resolve mode)
+
+| Agent | Focus | Blocking |
+|-------|-------|----------|
+| resolve-investigator | Root-cause tracing, hypothesis generation, reproduction tests | Yes |
+
+## TDD enforcement
+
+Every subagent follows the RED-GREEN-REFACTOR cycle:
+
+1. **RED** -- write a failing test
+2. **GREEN** -- write minimum code to pass
+3. **REFACTOR** -- clean up while green
+
+No production code without a failing test first. No exceptions.
+
+## Parallelization
+
+Tasks in the plan are classified as `[PARALLEL]` or `[SEQUENTIAL]`:
+
+- **PARALLEL** -- no shared files, no data dependencies; dispatched as concurrent subagents
+- **SEQUENTIAL** -- depends on another task's output or touches shared files
+
+The plan's Execution Waves table groups tasks into waves. Within each wave, parallel tasks run concurrently. After each wave, the full test suite runs.
 
 ## Git safety
 
-- **Never commits to master/main** — enforced by a `PreToolUse` hook that blocks git write operations on protected branches
-- **Conventional Commits** — `feat(scope): description` format, adapted to the project's existing convention if different
-- **Logical splitting** — related changes in one commit, unrelated changes split
-- **Rebase before push** — always rebases from the default branch before pushing
+- **Never commits to master/main** -- enforced by a `PreToolUse` hook that blocks git write operations on protected branches
+- **Conventional Commits** -- `feat(scope): description` format, adapted to the project's existing convention if different
+- **Logical splitting** -- related changes in one commit, unrelated changes split
+- **Rebase before push** -- always rebases from the default branch before pushing
 
-## File structure
+## Project structure
 
 ```
-joao-toolkit/
-  .claude-plugin/
-    plugin.json                    # Plugin manifest
-    marketplace.json               # Local marketplace registration
+development-toolkit/
   hooks/
     hooks.json                     # Hook configuration
-    session-start.sh               # Injects meta-skill + stalled pipeline detection
+    session-start.sh               # Meta-skill injection + stalled pipeline detection
     git-safety.sh                  # Blocks writes to master/main
     continuity-enforcement.sh      # Prevents narration between pipeline phases
     stop-guard.sh                  # Blocks stop during active pipelines
@@ -156,22 +186,17 @@ joao-toolkit/
     revision/SKILL.md              # Phase 3: cross-document review
     execute/SKILL.md               # Phase 4: TDD implementation + step-back protocol
     code-review/SKILL.md           # Phase 5: multi-axis review (BLOCKING/non-blocking)
-    commit-push/SKILL.md           # Phase 6: safe git operations + QA scenarios
-    tdd/SKILL.md                   # Cross-cutting TDD enforcement + step-back
+    commit-push/SKILL.md           # Phase 6: safe git operations
+    tdd/SKILL.md                   # Cross-cutting TDD enforcement
   agents/
-    plan-alignment-reviewer.md     # BLOCKING — code vs plan alignment
-    code-quality-reviewer.md       # BLOCKING — five-axis quality review
-    convention-reviewer.md         # Non-blocking — project convention adherence
-    test-reviewer.md               # BLOCKING — test quality and coverage
-    security-reviewer.md           # BLOCKING — OWASP + PCI/e-commerce
-    resolve-investigator.md        # BLOCKING — structured bug diagnosis
+    plan-alignment-reviewer.md     # BLOCKING -- code vs plan alignment
+    code-quality-reviewer.md       # BLOCKING -- five-axis quality review
+    convention-reviewer.md         # Non-blocking -- project convention adherence
+    test-reviewer.md               # BLOCKING -- test quality and coverage
+    security-reviewer.md           # BLOCKING -- OWASP + PCI/e-commerce
+    resolve-investigator.md        # BLOCKING -- structured bug diagnosis
   commands/                        # Slash commands (/dev, /brainstorm, etc.)
-  templates/
-    01-brainstorm.md               # Template for brainstorm artifacts
-    01-diagnosis.md                # Template for diagnosis artifacts (resolve mode)
-    02-plan.md                     # Template for plan artifacts
-    03-revision.md                 # Template for revision artifacts
-    04-code-review.md              # Template for code review artifacts
+  templates/                       # Document templates for spec artifacts
 ```
 
 ## License

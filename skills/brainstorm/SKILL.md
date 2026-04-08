@@ -209,7 +209,7 @@ When invoked in resolve mode by the `dev-pipeline` skill (triggered by bug-relat
 
 ### Step D.1 — Dispatch the Resolve Investigator
 
-Dispatch the `resolve-investigator` agent (subagent type: `joao-toolkit:resolve-investigator`) with:
+Dispatch the `resolve-investigator` agent (subagent type: `development-toolkit:resolve-investigator`) with:
 - The bug description from the user's original request
 - The project context from Phase 0
 - Any error logs, screenshots, or stack traces provided

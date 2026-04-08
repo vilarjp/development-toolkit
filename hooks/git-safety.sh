@@ -22,7 +22,7 @@ fi
 # --- Check 1: Block pushes targeting origin main/master from ANY branch ---
 # Matches: git push origin main, git push origin master, git push --force origin main, etc.
 if echo "$TOOL_INPUT" | grep -qE 'git\s+push\s+.*origin\s+(main|master)(\s|$)'; then
-  echo "BLOCKED by joao-toolkit git-safety hook:"
+  echo "BLOCKED by development-toolkit git-safety hook:"
   echo "  Pushing to origin main/master is not allowed."
   echo "  Push to a feature branch instead: git push -u origin <branch-name>"
   exit 1
@@ -57,7 +57,7 @@ fi
 WRITE_OPS="commit|push|merge|rebase"
 
 if echo "$TOOL_INPUT" | grep -qE "git\s+($WRITE_OPS)(\s|$)"; then
-  echo "BLOCKED by joao-toolkit git-safety hook:"
+  echo "BLOCKED by development-toolkit git-safety hook:"
   echo "  You are on the protected branch '$CURRENT_BRANCH'."
   echo "  Git write operations (commit, push, merge, rebase) are not allowed on main/master."
   echo "  Create a feature branch first: git checkout -b <branch-name>"

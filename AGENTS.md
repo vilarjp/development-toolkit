@@ -1,4 +1,4 @@
-# AGENTS.md — joao-toolkit
+# AGENTS.md — development-toolkit
 
 Instructions for AI agents working in this repository.
 
