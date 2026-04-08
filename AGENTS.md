@@ -9,8 +9,19 @@ This is a Claude Code plugin toolkit that provides a structured development pipe
 ## Repository layout
 
 ```
-.claude-plugin/    Plugin manifest
 skills/            Skill definitions (SKILL.md + references/)
+  dev-pipeline/      Feature pipeline orchestrator
+  resolve-pipeline/  Resolve pipeline orchestrator (bug fixes)
+  diagnosis/         Phase 1R: structured bug investigation
+  brainstorm/        Phase 1: problem exploration
+  plan/              Phase 2: technical planning
+  revision/          Phase 3: cross-document review
+  execute/           Phase 4: TDD implementation
+  code-review/       Phase 5: multi-axis review
+  commit-push/       Phase 6: safe git operations
+  tdd/               Cross-cutting TDD enforcement
+  context-loader/    Phase 0: project scanning
+  using-toolkit/     Meta-skill: discovery + operating behaviors
 agents/            Agent personas for parallel reviewer subagents
 commands/          Slash command definitions (thin markdown files)
 hooks/             Session and pre-tool hooks
@@ -44,6 +55,18 @@ templates/         Document templates for spec artifacts
 - Each command describes what it does and its usage pattern.
 - Commands map to skill invocations — they do not contain logic themselves.
 
+## Spec directory convention
+
+Pipeline artifacts are stored in per-session directories under `docs/`:
+
+```
+docs/YYYY-MM-DD-short-description/
+```
+
+- Use today's date and a kebab-case short description derived from the topic (e.g., `docs/2026-04-08-user-auth-flow/`)
+- Artifacts within: `01-brainstorm.md` or `01-diagnosis.md`, `02-plan.md`, `03-revision.md`, `04-code-review.md`
+- To detect an active pipeline, search for `docs/YYYY-MM-DD-*/` directories and check which artifacts exist within.
+
 ## Rules for modifying hooks
 
 - Hook configuration is in `hooks/hooks.json`.
@@ -53,6 +76,7 @@ templates/         Document templates for spec artifacts
 ## Testing changes
 
 Test any skill changes by running the skill in a sample project:
+
 1. Install the plugin in a test project
 2. Run the relevant slash command
 3. Verify the skill produces correct output

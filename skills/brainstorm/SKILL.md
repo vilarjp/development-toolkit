@@ -13,21 +13,6 @@ Phase 0 (context-loader) must have run. If no project context is available in th
 
 ## Process
 
-### Phase 1.0 -- Mode Detection (FIRST STEP — before anything else)
-
-**Check immediately:** Was this skill invoked with resolve-mode keywords in the arguments? Look for: "RESOLVE MODE", "bug", "diagnosis", "fix", "error", "broken", "regression", "not working".
-
-**If resolve-mode keywords are present:**
--> SKIP Phases 1.1 through 1.7 entirely. Jump directly to the **Diagnosis Mode** section at the bottom of this document.
--> Do NOT ask clarifying questions from Phase 1.1.
--> Do NOT generate options from Phase 1.3.
--> Bugs need investigation, not brainstorming.
-
-**If no resolve-mode keywords are present:**
--> Continue with Phase 1.1 below (normal brainstorm flow).
-
----
-
 Execute these phases in strict order. Do not skip ahead. Do not write the artifact until Phase 1.6 is complete and the user has confirmed the recommended direction.
 
 ### Phase 1.1 -- Understand the Request
@@ -203,57 +188,6 @@ The existing code constrains the solution space. It does not decide the solution
 
 See `references/anti-patterns.md` for detailed examples of each failure mode.
 
-## Diagnosis Mode (Resolve Pipeline) — JUMP HERE from Phase 1.0 if resolve mode detected
-
-When invoked in resolve mode by the `dev-pipeline` skill (triggered by bug-related intent), the brainstorm skill operates in diagnosis mode instead of its normal flow. Phases 1.1-1.7 are skipped entirely. Execute the steps below instead.
-
-### Step D.1 — Dispatch the Resolve Investigator
-
-Dispatch the `resolve-investigator` agent (subagent type: `development-toolkit:resolve-investigator`) with:
-- The bug description from the user's original request
-- The project context from Phase 0
-- Any error logs, screenshots, or stack traces provided
-
-Wait for the investigator to complete. Read its full output.
-
-### Step D.2 — Verify and Supplement (optional)
-
-If the investigator's findings are incomplete or you need to verify a specific claim:
-- Run targeted `Grep` or `Read` calls on the files identified by the investigator
-- Do NOT re-investigate from scratch — supplement what the investigator found
-
-### Step D.3 — Write 01-diagnosis.md
-
-Create the per-session spec directory: `docs/YYYY-MM-DD-short-description/`
-Write `01-diagnosis.md` using the template from `templates/01-diagnosis.md` with:
-- Bug description (reported vs expected vs actual)
-- Investigation trail table
-- Hypotheses table with verdicts
-- Confirmed root cause with file:line references
-- Reproduction test plan
-- Hotspots table
-- Suggested fix (minimal)
-
-### Step D.4 — Classify Severity
-
-Apply bug-specific complexity criteria:
-- **TRIVIAL:** Single obvious cause, >95% confidence, one-line or few-line fix
-- **STANDARD:** Clear root cause, non-trivial fix, 1-3 files
-- **COMPLEX:** Multiple interacting causes, race conditions, 4+ files
-
-Set the severity in the diagnosis document.
-
-### Step D.5 — Present for Human Approval
-
-Present the diagnosis summary to the user. Include:
-- Root cause (one sentence)
-- Suggested fix (one sentence)
-- Severity classification
-
-The `dev-pipeline` skill handles the approval gate format and the trivial escape hatch logic. Return control to the pipeline after presenting the diagnosis.
-
 ## Handoff
 
-**Normal mode:** Brainstorm complete. Proceed to `/plan` to create the implementation plan, or review and adjust the brainstorm artifact first.
-
-**Diagnosis mode:** Diagnosis complete. Return control to the `dev-pipeline` orchestrator, which will present the approval gate (including the trivial escape hatch if severity is TRIVIAL) and determine the next phase.
+Brainstorm complete. Proceed to `/plan` to create the implementation plan, or review and adjust the brainstorm artifact first.

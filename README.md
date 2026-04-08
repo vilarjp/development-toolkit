@@ -1,8 +1,8 @@
 # development-toolkit
 
-A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that enforces spec-driven development through a structured pipeline: brainstorm, plan, revise, execute, review, commit.
+A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that enforces spec-driven development through structured pipelines.
 
-Every feature goes through a full cycle of exploration, planning, TDD implementation, and multi-axis code review before it reaches a commit. Bug fixes follow a shortened resolve pipeline with structured diagnosis and prove-it TDD. Human approval gates ensure nothing ships without your sign-off.
+Two pipelines serve different work types. The **feature pipeline** runs exploration, planning, TDD implementation, and multi-axis code review before it reaches a commit. The **resolve pipeline** runs structured diagnosis, prove-it TDD, and code review for bug fixes. Human approval gates ensure nothing ships without your sign-off.
 
 ## Prerequisites
 
@@ -46,7 +46,7 @@ Start a Claude Code session and run:
 /context
 ```
 
-You should see a project context scan output. If the toolkit loaded correctly, the `/dev`, `/brainstorm`, `/plan`, `/revise`, `/execute`, `/review`, and `/commit` slash commands will be available.
+You should see a project context scan output. If the toolkit loaded correctly, the `/dev`, `/resolve`, `/brainstorm`, `/diagnose`, `/plan`, `/revise`, `/execute`, `/review`, and `/commit` slash commands will be available.
 
 ## Quick start
 
@@ -57,12 +57,16 @@ You should see a project context scan output. If the toolkit loaded correctly, t
 # Just brainstorm an idea
 /brainstorm how should we structure the caching layer
 
-# Fix a bug
-/dev fix the race condition in the payment handler
+# Fix a bug (resolve pipeline)
+/resolve fix the race condition in the payment handler
+
+# Just diagnose a bug (without full pipeline)
+/diagnose why are checkout totals rounding incorrectly
 
 # Run individual phases
 /context          # scan project structure
 /brainstorm       # explore options
+/diagnose         # investigate a bug
 /plan             # create implementation plan
 /revise           # cross-check for gaps
 /execute          # implement with TDD
@@ -74,7 +78,7 @@ You should see a project context scan output. If the toolkit loaded correctly, t
 
 The toolkit runs a structured pipeline where each phase produces a markdown artifact. Each subsequent phase reads the previous artifacts, creating a durable chain of accountability.
 
-### Feature pipeline
+### Feature pipeline (`/dev`)
 
 ```
 Context -> Brainstorm -> Plan -> Revise -> [APPROVAL] -> Execute -> [TESTS] -> Review -> [APPROVAL] -> Commit
@@ -95,19 +99,19 @@ Context -> Brainstorm -> Plan -> Revise -> [APPROVAL] -> Execute -> [TESTS] -> R
 
 All artifacts are saved in a per-session folder: `docs/YYYY-MM-DD-short-description/`.
 
-### Resolve pipeline (bug fixes)
+### Resolve pipeline (`/resolve`)
 
-Bug-related requests automatically enter a shortened pipeline optimized for diagnosis and targeted fixes:
+Bug-related requests use a dedicated resolve pipeline optimized for diagnosis and targeted fixes:
 
-| Phase | Artifact | What happens |
-|-------|----------|--------------|
-| 0 | (in-memory) | Context scan |
-| 1R | `01-diagnosis.md` | Structured bug investigation with root-cause tracing |
-| | | **Human approval gate** (diagnosis review) |
-| 4R | source code + tests | Prove-it TDD: reproduction test first, then minimal fix |
-| | | **Test gate** |
-| 5 | `04-code-review.md` | Same review process as feature mode |
-| 6 | git history | Commit and push |
+| Phase | Command | Artifact | What happens |
+|-------|---------|----------|--------------|
+| 0 | `/context` | (in-memory) | Context scan |
+| 1R | `/diagnose` | `01-diagnosis.md` | Structured bug investigation with root-cause tracing |
+| | | | **Human approval gate** (diagnosis review) |
+| 4R | `/execute` | source code + tests | Prove-it TDD: reproduction test first, then minimal fix |
+| | | | **Test gate** |
+| 5 | `/review` | `04-code-review.md` | Same review process as feature pipeline |
+| 6 | `/commit` | git history | Commit and push |
 
 Trivial bugs get an escape hatch: if the diagnosis classifies the fix as trivial, you can skip execution and review phases entirely.
 
@@ -135,7 +139,7 @@ No gate is bypassed automatically. Silence is not approval.
 
 The security reviewer is dispatched only when the diff touches auth, user input, APIs, data storage, or payment code.
 
-### Investigation agent (Resolve mode)
+### Investigation agent (Resolve pipeline)
 
 | Agent | Focus | Blocking |
 |-------|-------|----------|
@@ -175,13 +179,14 @@ development-toolkit/
     hooks.json                     # Hook configuration
     session-start.sh               # Meta-skill injection + stalled pipeline detection
     git-safety.sh                  # Blocks writes to master/main
-    continuity-enforcement.sh      # Prevents narration between pipeline phases
     stop-guard.sh                  # Blocks stop during active pipelines
   skills/
     using-toolkit/SKILL.md         # Meta-skill: discovery + operating behaviors
-    dev-pipeline/SKILL.md          # Pipeline orchestrator (feature + resolve modes)
+    dev-pipeline/SKILL.md          # Feature pipeline orchestrator
+    resolve-pipeline/SKILL.md      # Resolve pipeline orchestrator (bug fixes)
     context-loader/SKILL.md        # Phase 0: project context scanning
-    brainstorm/SKILL.md            # Phase 1: problem exploration + diagnosis mode
+    brainstorm/SKILL.md            # Phase 1: problem exploration
+    diagnosis/SKILL.md             # Phase 1R: structured bug investigation
     plan/SKILL.md                  # Phase 2: technical planning
     revision/SKILL.md              # Phase 3: cross-document review
     execute/SKILL.md               # Phase 4: TDD implementation + step-back protocol
@@ -195,7 +200,7 @@ development-toolkit/
     test-reviewer.md               # BLOCKING -- test quality and coverage
     security-reviewer.md           # BLOCKING -- OWASP + PCI/e-commerce
     resolve-investigator.md        # BLOCKING -- structured bug diagnosis
-  commands/                        # Slash commands (/dev, /brainstorm, etc.)
+  commands/                        # Slash commands (/dev, /resolve, /brainstorm, etc.)
   templates/                       # Document templates for spec artifacts
 ```
 

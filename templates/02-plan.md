@@ -3,7 +3,7 @@ phase: plan
 date: "{{date}}"
 status: draft
 topic: "{{topic}}"
-origin: "docs/spec/01-brainstorm.md"
+origin: "{{spec_dir}}/01-brainstorm.md"
 ---
 
 # Implementation Plan: {{topic}}
