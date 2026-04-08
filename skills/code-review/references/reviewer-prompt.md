@@ -18,6 +18,17 @@ Use this context to understand the project's stack, conventions, directory struc
 
 This is the implementation plan that the code is supposed to implement. Use it to verify completeness, scope alignment, and acceptance criteria fulfillment.
 
+## Implementation Notes
+
+[IMPLEMENTATION_NOTES — if available from Phase 4. Contains:]
+- Approach chosen and rationale
+- Rejected alternatives with reasons
+- Files changed with rationale
+- Concerns and low-confidence areas flagged by the implementer
+- Hotspots where the implementer recommends focused review
+
+Use these notes to focus your review. Pay extra attention to flagged hotspots and concerns. However, do NOT trust the implementer's self-assessment — verify every claim against the actual code.
+
 ## Diff to Review
 
 ```diff
@@ -98,3 +109,17 @@ Return your findings as a structured list, grouped by severity. Use this exact f
 2. [Specific positive observation with file reference]
 
 If a severity section has no findings, include the header and write "No issues found at this severity level." Do not omit the section.
+
+## Structured Result
+
+Append this block at the very end of your report:
+
+```
+---AGENT_RESULT---
+STATUS: PASS | FAIL
+ISSUES_FOUND: [count]
+P0_COUNT: [count]
+P1_COUNT: [count]
+BLOCKING: [true or false — based on your agent's blocking classification]
+---END_RESULT---
+```

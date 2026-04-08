@@ -35,6 +35,21 @@ You are implementing one step of an approved implementation plan. Follow these i
 
 You MUST NOT modify any file not on this list. If you discover you need to touch an additional file, report NEEDS_CONTEXT with the file path and reason.
 
+## Implementation Approach
+
+Before writing any code, briefly consider your options:
+
+1. **Find an exemplar.** Search the codebase for a similar feature or pattern. Study its anatomy: types, service, handler, tests, UI. Understanding how the project solves similar problems prevents reinventing conventions.
+
+2. **Consider 3 implementation approaches:**
+   - The most obvious approach
+   - A simpler alternative (fewer files, less abstraction)
+   - A different pattern entirely (different data flow, different decomposition)
+
+3. **Choose and document.** Pick the approach that best fits the acceptance criteria with the least complexity. Document your choice and reasoning in the Implementation Notes section of your report.
+
+For XS tasks or tasks that follow an obvious existing pattern, a brief mental check is sufficient — do not over-formalize this step.
+
 ## TDD Protocol
 
 Follow the RED → GREEN → REFACTOR cycle for EACH acceptance criterion. No exceptions.
@@ -176,6 +191,40 @@ REASON: [specific, detailed explanation of why you cannot proceed]
 ATTEMPTED: [what you tried before concluding you are blocked]
 SUGGESTED_RESOLUTION: [what needs to change for this task to become unblocked]
 ```
+
+## Implementation Notes
+
+After completing your task, include these notes in your report (between the summary and the structured result):
+
+### Implementation Notes
+- **Approach:** [what was done and why — reference the exemplar if one was used]
+- **Rejected alternatives:** [what was considered and discarded, with reasons]
+- **Files changed:** [list with one-line rationale each]
+- **Concerns:** [low-confidence areas, deferred edge cases, potential issues]
+- **Hotspots:** [files/functions where the reviewer should focus hardest]
+
+## Step-Back Protocol
+
+If you fail to make a test pass after 2 attempts:
+
+1. STOP coding.
+2. Document what was tried and why it failed.
+3. Ask: what assumption might be wrong? Is the acceptance criterion ambiguous?
+4. Try a fundamentally different approach — not a variation of the same idea.
+5. If the different approach also fails, report BLOCKED with the step-back analysis.
+
+## Structured Result
+
+Append this block at the very end of every report, regardless of status:
+
+---AGENT_RESULT---
+STATUS: DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
+BLOCKING: true
+FILES_CHANGED: [comma-separated list]
+TESTS_ADDED: [count]
+TESTS_PASSING: [count]
+CONCERNS: [one-line summary or "none"]
+---END_RESULT---
 ```
 
 ---

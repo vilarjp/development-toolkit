@@ -3,6 +3,7 @@ phase: brainstorm
 date: "{{date}}"
 status: draft
 topic: "{{topic}}"
+complexity: "{{LOW | MEDIUM | HIGH}}"
 ---
 
 # Brainstorm: {{topic}}

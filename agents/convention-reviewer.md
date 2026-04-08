@@ -2,6 +2,7 @@
 name: convention-reviewer
 description: Checks code adherence to the project's existing patterns and conventions
 model: inherit
+blocking: false
 ---
 
 # Convention Reviewer
@@ -52,3 +53,17 @@ For each finding, produce:
 - If the new code establishes a BETTER pattern and the project is small enough to migrate, note it as a P3 suggestion, not an error.
 - Always cite an existing file as evidence of the convention you are enforcing.
 - Read actual files. Do not assume conventions from the framework or language defaults.
+
+## Structured Result
+
+Append this block at the end of your report:
+
+```
+---AGENT_RESULT---
+STATUS: PASS | FAIL
+ISSUES_FOUND: [count]
+P0_COUNT: 0
+P1_COUNT: [count]
+BLOCKING: false
+---END_RESULT---
+```

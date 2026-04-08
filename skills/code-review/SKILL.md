@@ -7,13 +7,25 @@ description: Use after implementation is complete and all tests pass. Dispatches
 
 Catch defects, convention violations, security issues, and plan misalignment BEFORE code is committed. Multiple independent reviewers examine different aspects in parallel, then findings are merged, deduplicated, and classified by severity.
 
-**Model:** Reviewer subagents use `claude-sonnet-4-6` with thinking budget 5,000 tokens. The orchestrator runs in the current session.
-
 ## Prerequisites
 
 - All tests must pass. If the test gate from Phase 4 has not been met, STOP. Run the test suite and fix failures first.
-- `docs/spec/02-plan.md` must exist. If it does not, STOP. The plan-alignment reviewer cannot function without it.
+- A plan artifact (`02-plan.md`) must exist in the active per-session spec directory (format: `docs/YYYY-MM-DD-short-description/`). Also check the legacy location `docs/spec/`. If it does not exist in either location, STOP. The plan-alignment reviewer cannot function without it. In resolve mode, `01-diagnosis.md` serves as the plan reference instead.
 - Project context from Phase 0 must be loaded. If not available in the conversation, run `/context` first.
+
+## Reviewer Classification
+
+Reviewers are classified as BLOCKING or non-blocking. Only BLOCKING reviewers affect the pipeline verdict. Non-blocking reviewers provide valuable feedback but do not trigger Gate #2.
+
+| Reviewer | Classification | Rationale |
+|----------|---------------|-----------|
+| Plan Alignment Reviewer | **BLOCKING** | If the code does not match the plan, it is wrong by definition |
+| Code Quality Reviewer | **BLOCKING** | Correctness and security issues must block |
+| Convention Reviewer | Non-blocking | Convention violations are important but not commit-blocking |
+| Test Reviewer | **BLOCKING** | Weak tests mask bugs and undermine the TDD guarantee |
+| Security Reviewer | **BLOCKING** | Security issues always block (when dispatched) |
+
+The pipeline verdict depends ONLY on BLOCKING reviewers. Non-blocking findings are logged in the review artifact and reported to the user, but they do not trigger Gate #2.
 
 ## Process
 
@@ -76,8 +88,11 @@ Dispatch the following reviewer subagents IN PARALLEL. They are read-only -- the
 - Dispatched ONLY when the diff touches any of: authentication or authorization logic, user input handling, API endpoints, data storage or database queries, environment variables or secrets, external service calls or webhooks, file upload/download, session or token management
 - Receives: relevant diff sections + security context from project conventions
 - Checks: OWASP Top 10, input validation, auth/authz, injection vectors, secrets in code
+- Additionally checks: PCI-DSS compliance patterns when the diff touches payment processing, checkout flows, or financial data (see `agents/security-reviewer.md` PCI/E-Commerce Security Module)
 
 Each reviewer receives a prompt constructed from the template in `references/reviewer-prompt.md`, filled in with the reviewer's specific scope, agent file reference, and relevant diff sections.
+
+**Implementation Notes:** If implementation notes were collected during Phase 4 (see `skills/execute/SKILL.md` Phase 4.7), include them in each reviewer's prompt. Implementation notes highlight the implementer's approach, rejected alternatives, concerns, and hotspots — helping reviewers focus on the areas most likely to contain issues.
 
 ### Phase 5.4 -- Collect and Merge Findings
 
@@ -100,7 +115,7 @@ After all reviewers complete:
 
 ### Phase 5.5 -- Write Review Artifact
 
-Write `docs/spec/04-code-review.md` using the template from `templates/04-code-review.md`.
+Write `04-code-review.md` in the same per-session spec directory where the other artifacts were found, using the template from `templates/04-code-review.md`.
 
 Fill in every section:
 - YAML frontmatter with phase, date, status, topic, and reviewer list
@@ -113,6 +128,8 @@ Fill in every section:
 The artifact must be complete. No placeholders, no TODOs, no "see above." Another agent must be able to read it without any conversation context.
 
 ### Phase 5.6 -- Gate Decision
+
+**Gate decision logic:** Count P0 issues ONLY from BLOCKING reviewers (plan-alignment, code-quality, test, security). P0 issues from non-blocking reviewers (convention) are reported but do not trigger the gate.
 
 **If P0 (critical) issues exist:**
 

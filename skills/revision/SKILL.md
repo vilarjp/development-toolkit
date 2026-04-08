@@ -7,12 +7,10 @@ description: Use after brainstorm and plan are written to cross-check both docum
 
 Cross-document review that catches errors, gaps, and inconsistencies between the brainstorm and the plan BEFORE any code is written. This is the last checkpoint before implementation begins.
 
-**Model:** claude-opus-4-6 with extended thinking enabled, budget_tokens: 10,000. Cross-document analysis requires deep reasoning.
-
 ## Prerequisites
 
-- `docs/spec/01-brainstorm.md` must exist.
-- `docs/spec/02-plan.md` must exist.
+- A brainstorm artifact (`01-brainstorm.md`) must exist in the active per-session spec directory (format: `docs/YYYY-MM-DD-short-description/`). Also check the legacy location `docs/spec/`.
+- A plan artifact (`02-plan.md`) must exist in the same directory.
 - If either file is missing, STOP. Tell the user which phase to run first.
 - Project context from Phase 0 should be available. If not, run `/context` before proceeding.
 
@@ -97,7 +95,7 @@ Do NOT introduce new features or expand scope during this phase. You are fixing 
 
 ### Phase 3.7 -- Write Revision Artifact
 
-Write `docs/spec/03-revision.md` using the template from `templates/03-revision.md`.
+Write `03-revision.md` in the same per-session spec directory where `01-brainstorm.md` and `02-plan.md` were found, using the template from `templates/03-revision.md`.
 
 The revision document must include:
 - **Items Reviewed:** The full checklist of what was verified, with pass/fail status for each item

@@ -75,6 +75,20 @@ After each complete RED-GREEN-REFACTOR cycle:
 2. Move to the next acceptance criterion
 3. Start a new RED phase
 
+## Step-Back Protocol
+
+If you fail to make a test pass after 2 attempts on the same approach:
+
+1. **STOP coding.** Do not try the same approach a third time.
+2. **Document** what was tried and why it failed (both attempts).
+3. **Ask:** What assumption might be wrong? Is the acceptance criterion ambiguous or contradictory?
+4. **Try a fundamentally different approach** — not a variation of the same idea. A different algorithm, a different data structure, a different decomposition.
+5. **If the different approach also fails**, report BLOCKED with the step-back analysis. Do not attempt a fourth approach without human input.
+
+This protocol prevents the common failure mode where an agent retries the same broken approach with minor tweaks, wasting time and context.
+
+See `skills/execute/SKILL.md` Phase 4.5 for how the orchestrator handles step-back escalation.
+
 ## The Prove-It Pattern (Bug Fixes)
 
 When fixing a bug, the cycle is modified. The bug IS the failing test.

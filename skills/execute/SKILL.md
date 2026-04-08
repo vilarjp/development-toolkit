@@ -7,8 +7,6 @@ description: Use when the plan is approved and ready for implementation. Dispatc
 
 Implement the approved plan through disciplined, test-driven development. Use parallel subagents for independent tasks. Every line of production code is justified by a failing test.
 
-**Model:** Subagents use claude-sonnet-4-6 with thinking budget 5,000 tokens. The orchestrator (this skill) runs in the current session.
-
 ## Prerequisites
 
 - `docs/spec/02-plan.md` must exist. This is the authoritative implementation reference.
@@ -112,6 +110,8 @@ Each subagent reports back with exactly one status:
 
 Use the full subagent prompt template from `references/implementer-prompt.md`.
 
+Every subagent report MUST end with a structured result block for machine-parseable orchestration. See the full format in `references/implementer-prompt.md`.
+
 ### Phase 4.5 -- Handle Subagent Failures
 
 Process each subagent report:
@@ -121,11 +121,23 @@ Process each subagent report:
 - **NEEDS_CONTEXT:** Provide the requested context. Re-dispatch the subagent with the additional information. If the context does not exist, escalate to the human.
 - **BLOCKED:** Escalate to the human immediately. Do NOT attempt to work around a block without human input.
 
-**The Three-Strike Rule:** If a subagent fails 3 times on the same task (3 dispatches, 3 failures), STOP. Do not attempt a 4th fix. Escalate to the human with:
-- The task description
-- All three failure reports
-- Your assessment of why it keeps failing
-- Suggested next steps
+**The Step-Back Protocol:** When a subagent fails repeatedly on the same task:
+
+**Strike 1:** Fix the specific error and retry.
+**Strike 2 — STEP-BACK:** Before retrying, the subagent MUST:
+  1. STOP coding
+  2. Document in implementation notes:
+     - What was tried and why it failed (both attempts)
+     - What assumption might be wrong
+     - Is the plan step ambiguous or contradictory?
+  3. Try a fundamentally different approach (not a variation of the same idea)
+**Strike 3 — ESCALATE:** If the different approach also fails, escalate to the human with:
+  - The task description
+  - All three failure attempts with reasoning
+  - The step-back analysis from Strike 2
+  - Your assessment of whether this is an implementation problem or a plan problem
+
+**Circuit Breaker:** If the escalation reveals a diagnosis or plan problem (not an implementation problem), the orchestrator may re-dispatch a targeted investigation or revision before retrying execution.
 
 ### Phase 4.6 -- Final Test Gate
 
@@ -153,6 +165,23 @@ Failing: [test name / lint rule / type error]
 Attempted fixes: [what was tried]
 The implementation is incomplete. Human intervention needed.
 ```
+
+### Phase 4.7 -- Collect Implementation Notes
+
+After all waves complete and the final test gate passes, collect implementation notes from all subagents:
+
+1. For each subagent that reported DONE or DONE_WITH_CONCERNS, extract the Implementation Notes section from its report.
+2. Compile all notes into a single document organized by wave and step.
+3. Pass the compiled notes to Phase 5 (Code Review) as additional context for reviewers.
+
+Implementation notes include:
+- **Approach:** What was done and why
+- **Rejected alternatives:** What was considered and discarded, with reasons
+- **Files changed:** List with one-line rationale each
+- **Concerns:** Low-confidence areas, deferred edge cases, potential issues
+- **Hotspots:** Files or functions where the reviewer should focus hardest
+
+These notes help reviewers understand intent and focus their attention on the areas most likely to contain issues.
 
 ## Subagent Prompt Template
 

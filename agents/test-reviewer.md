@@ -2,6 +2,7 @@
 name: test-reviewer
 description: Evaluates test quality, coverage, and adherence to TDD principles
 model: inherit
+blocking: true
 ---
 
 # Test Reviewer
@@ -59,3 +60,17 @@ For each finding, produce:
 - Every acceptance criterion from the plan MUST have a corresponding test. No exceptions.
 - Distinguish between "no test exists" (P0) and "test exists but is weak" (P2).
 - If test quality is genuinely good, say so specifically. Name the tests that are well-written and why.
+
+## Structured Result
+
+Append this block at the end of your report:
+
+```
+---AGENT_RESULT---
+STATUS: PASS | FAIL
+ISSUES_FOUND: [count]
+P0_COUNT: [count]
+P1_COUNT: [count]
+BLOCKING: true
+---END_RESULT---
+```

@@ -7,14 +7,12 @@ description: Use when you have a brainstorm document and need to create a techni
 
 Produce a detailed technical implementation plan from the brainstorm. This phase translates the "what" and "why" into the "how" -- architecture, steps, tests, and risk mitigation.
 
-**Model:** claude-opus-4-6 with thinking budget 10,000 tokens.
-
 ## Prerequisites
 
-- `docs/spec/01-brainstorm.md` must exist.
+- A brainstorm artifact (`01-brainstorm.md`) must exist in the active per-session spec directory (format: `docs/YYYY-MM-DD-short-description/`). Also check the legacy location `docs/spec/01-brainstorm.md`.
 - If its frontmatter status is "approved," proceed normally.
 - If its status is "draft," warn the user: "The brainstorm is still in draft. Proceeding, but the plan may need revision if the brainstorm changes." Then proceed.
-- If the file does not exist, STOP. Tell the user to run `/brainstorm` first.
+- If the file does not exist in either location, STOP. Tell the user to run `/brainstorm` first.
 
 ## Process
 
@@ -139,7 +137,7 @@ If any check fails, fix it before proceeding.
 
 ### Phase 2.8 -- Write Artifact
 
-Write `docs/spec/02-plan.md` using the template from `templates/02-plan.md`.
+Write `02-plan.md` in the same per-session spec directory where `01-brainstorm.md` was found, using the template from `templates/02-plan.md`.
 
 Fill in all sections:
 - YAML frontmatter with phase, date, status (draft), topic, and origin (path to brainstorm)

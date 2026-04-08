@@ -7,38 +7,71 @@ description: Use when exploring a new feature, change, or problem before committ
 
 Explore the problem space before committing to a solution. This phase produces a structured brainstorm document that feeds the planning phase.
 
-**Model:** claude-opus-4-6 with thinking budget 10,000 tokens.
-
 ## Prerequisites
 
 Phase 0 (context-loader) must have run. If no project context is available in the conversation, run `/context` first. Do not proceed without project context.
 
 ## Process
 
-Execute these phases in strict order. Do not skip ahead. Do not write the artifact until Phase 1.5 is complete and the user has confirmed the recommended direction.
+### Phase 1.0 -- Mode Detection (FIRST STEP — before anything else)
+
+**Check immediately:** Was this skill invoked with resolve-mode keywords in the arguments? Look for: "RESOLVE MODE", "bug", "diagnosis", "fix", "error", "broken", "regression", "not working".
+
+**If resolve-mode keywords are present:**
+-> SKIP Phases 1.1 through 1.7 entirely. Jump directly to the **Diagnosis Mode** section at the bottom of this document.
+-> Do NOT ask clarifying questions from Phase 1.1.
+-> Do NOT generate options from Phase 1.3.
+-> Bugs need investigation, not brainstorming.
+
+**If no resolve-mode keywords are present:**
+-> Continue with Phase 1.1 below (normal brainstorm flow).
+
+---
+
+Execute these phases in strict order. Do not skip ahead. Do not write the artifact until Phase 1.6 is complete and the user has confirmed the recommended direction.
 
 ### Phase 1.1 -- Understand the Request
 
-Read the user's description of what they want. Then ask clarifying questions to fill gaps.
+Read the user's description of what they want. Then ask clarifying questions using the structured interview protocol below. The interview merges Socratic questioning (open-ended exploration) with structured mandatory questions (focused coverage).
 
-**Rules for questions:**
+**Mandatory questions (always asked, one at a time, multiple-choice):**
+
+1. **WHY** — What problem does this solve?
+   - Options: UX friction / Missing capability / Technical debt / Performance issue / Bug or regression / Other: ___
+2. **WHO** — Who is affected?
+   - Options: All users / Specific user type: ___ / Developers or operators / Internal systems / Other: ___
+3. **OPEN** — Anything else I should know?
+   - Options: Nothing else / More context (please share) / There are constraints or gotchas
+
+**Conditional follow-up questions (asked only if mandatory answers are sparse or ambiguous):**
+
+4. Current state — How does it work today? (when the user's answer to WHY was vague)
+5. Success criteria — How will you know it is working? (when no measurable outcome was stated)
+
+**Completeness checklist (internal evaluation — do NOT show this to the user):**
+
+Before deciding whether to ask more questions, evaluate:
+- [ ] WHY — user articulated problem or motivation
+- [ ] WHO — all affected user types identified
+- [ ] Happy path — main flow described or confirmed
+- [ ] Error states — what happens when things go wrong
+- [ ] Scope boundary — what is NOT in scope
+- [ ] Assumptions — high-impact ones surfaced
+
+Skip further probing if all checklist dimensions are covered. Continue with Socratic follow-ups only for uncovered dimensions.
+
+**Rules for all questions:**
 - Ask ONE question at a time. Never batch multiple questions into one message.
 - Prefer multiple-choice format with an "Other" option. This reduces friction and surfaces options the user may not have considered.
-- Maximum 5 questions before producing output. If you still have unknowns after 5 questions, state them as assumptions in Phase 1.2.
+- Maximum 5 questions total (3 mandatory + up to 2 conditional or Socratic). If you still have unknowns after 5 questions, state them as assumptions in Phase 1.2.
 - Stop asking questions early if the answers are clear from context.
-
-**Focus your questions on:**
-1. What problem are we solving? (not what feature are we building)
-2. For whom? (user persona, system consumer, developer)
-3. What does success look like? (measurable outcome)
-4. What are the constraints? (time, tech, compatibility, scope)
-5. What has been tried before? (prior art, failed approaches)
+- When presenting options, always mark the recommended option with `[Recommended]`.
 
 **Do NOT ask:**
 - Implementation questions (that is Phase 2)
 - Questions you can answer by reading the codebase
 - Questions where only one reasonable answer exists
-- Open-ended questions with no options -- these waste the user's time
+- Open-ended questions with no options — these waste the user's time
 
 ### Phase 1.2 -- Explore the Problem Space
 
@@ -88,7 +121,33 @@ Choose one option. State:
 
 The recommendation must follow logically from the goals and constraints established in Phase 1.2. If it does not, something is wrong -- revisit.
 
-### Phase 1.5 -- Self-Review
+### Phase 1.5 -- Assess Complexity
+
+Before self-review, classify the task's complexity. This classification affects checkpoint placement in the pipeline.
+
+| Classification | Criteria |
+|---------------|----------|
+| **LOW** | Single-pattern change, 1-3 files, follows existing pattern exactly, XS-S scope |
+| **MEDIUM** | 3-10 files, new component or feature slice, M scope |
+| **HIGH** | 10+ files, new architectural pattern, cross-cutting concern, external integration, L scope that was decomposed |
+
+Set the `complexity` field in the brainstorm artifact frontmatter.
+
+After determining complexity, present the checkpoint strategy to the user:
+
+```
+Complexity assessed as: **[LOW / MEDIUM / HIGH]**
+Recommended checkpoint strategy:
+  A) Low: single gate after Revision [Recommended for LOW complexity]
+  B) Medium: gate after Planning and after Revision [Recommended for MEDIUM complexity]
+  C) High: gate after Brainstorm, after Planning, and after Revision [Recommended for HIGH complexity]
+
+Which strategy would you like to use? (A, B, or C)
+```
+
+Wait for user confirmation before proceeding. The chosen strategy is recorded in the brainstorm artifact and the pipeline orchestrator uses it to determine gate placement.
+
+### Phase 1.6 -- Self-Review
 
 Before writing the artifact, verify:
 
@@ -105,22 +164,23 @@ Before writing the artifact, verify:
 
 If any check fails, fix it before proceeding.
 
-### Phase 1.6 -- Write Artifact
+### Phase 1.7 -- Write Artifact
 
-**HARD GATE: Do NOT write the brainstorm file until ALL exploration phases (1.1-1.5) are complete and the user has confirmed the recommended direction.**
+**HARD GATE: Do NOT write the brainstorm file until ALL exploration phases (1.1-1.6) are complete and the user has confirmed the recommended direction.**
 
 The document MUST reflect genuine exploration -- not a rubber-stamp of the first idea that came to mind. If your brainstorm has only one real option and two filler options, you have failed.
 
 If the user says "just do it" or "skip the brainstorm," explain that the brainstorm prevents wasted implementation effort and ask them to confirm. If they confirm, skip it -- but note in subsequent phases that no brainstorm was conducted.
 
 Steps:
-1. Create the `docs/spec/` directory if it does not exist
-2. Write `docs/spec/01-brainstorm.md` using the template from `templates/01-brainstorm.md`
+1. Create a per-session spec directory under `docs/` using the convention: `docs/YYYY-MM-DD-short-description-of-topic/` (e.g., `docs/2026-04-08-user-auth-flow/`). Use today's date and a kebab-case short description derived from the topic.
+2. Write `01-brainstorm.md` inside that directory using the template from `templates/01-brainstorm.md`
 3. Set the `status` field in frontmatter to `draft`
-4. Fill in the `date` field with today's date
-5. Replace all `{{placeholder}}` tokens with actual content from phases 1.1-1.4
+4. Set the `complexity` field in frontmatter to the classification from Phase 1.5
+5. Fill in the `date` field with today's date
+6. Replace all `{{placeholder}}` tokens with actual content from phases 1.1-1.4
 
-The artifact must be complete -- no placeholders, no TODOs, no "see above." It is a standalone document that another agent could read without any conversation context.
+The artifact must be complete — no placeholders, no TODOs, no "see above." It is a standalone document that another agent could read without any conversation context.
 
 ## Anti-Patterns
 
@@ -143,6 +203,57 @@ The existing code constrains the solution space. It does not decide the solution
 
 See `references/anti-patterns.md` for detailed examples of each failure mode.
 
+## Diagnosis Mode (Resolve Pipeline) — JUMP HERE from Phase 1.0 if resolve mode detected
+
+When invoked in resolve mode by the `dev-pipeline` skill (triggered by bug-related intent), the brainstorm skill operates in diagnosis mode instead of its normal flow. Phases 1.1-1.7 are skipped entirely. Execute the steps below instead.
+
+### Step D.1 — Dispatch the Resolve Investigator
+
+Dispatch the `resolve-investigator` agent (subagent type: `joao-toolkit:resolve-investigator`) with:
+- The bug description from the user's original request
+- The project context from Phase 0
+- Any error logs, screenshots, or stack traces provided
+
+Wait for the investigator to complete. Read its full output.
+
+### Step D.2 — Verify and Supplement (optional)
+
+If the investigator's findings are incomplete or you need to verify a specific claim:
+- Run targeted `Grep` or `Read` calls on the files identified by the investigator
+- Do NOT re-investigate from scratch — supplement what the investigator found
+
+### Step D.3 — Write 01-diagnosis.md
+
+Create the per-session spec directory: `docs/YYYY-MM-DD-short-description/`
+Write `01-diagnosis.md` using the template from `templates/01-diagnosis.md` with:
+- Bug description (reported vs expected vs actual)
+- Investigation trail table
+- Hypotheses table with verdicts
+- Confirmed root cause with file:line references
+- Reproduction test plan
+- Hotspots table
+- Suggested fix (minimal)
+
+### Step D.4 — Classify Severity
+
+Apply bug-specific complexity criteria:
+- **TRIVIAL:** Single obvious cause, >95% confidence, one-line or few-line fix
+- **STANDARD:** Clear root cause, non-trivial fix, 1-3 files
+- **COMPLEX:** Multiple interacting causes, race conditions, 4+ files
+
+Set the severity in the diagnosis document.
+
+### Step D.5 — Present for Human Approval
+
+Present the diagnosis summary to the user. Include:
+- Root cause (one sentence)
+- Suggested fix (one sentence)
+- Severity classification
+
+The `dev-pipeline` skill handles the approval gate format and the trivial escape hatch logic. Return control to the pipeline after presenting the diagnosis.
+
 ## Handoff
 
-Brainstorm complete. Proceed to `/plan` to create the implementation plan, or review and adjust `docs/spec/01-brainstorm.md` first.
+**Normal mode:** Brainstorm complete. Proceed to `/plan` to create the implementation plan, or review and adjust the brainstorm artifact first.
+
+**Diagnosis mode:** Diagnosis complete. Return control to the `dev-pipeline` orchestrator, which will present the approval gate (including the trivial escape hatch if severity is TRIVIAL) and determine the next phase.
