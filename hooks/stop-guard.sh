@@ -65,19 +65,19 @@ fi
 # - OR code review exists but there are uncommitted changes
 if [ "$HAS_BRAINSTORM" = true ] && [ "$HAS_REVIEW" = false ]; then
   date +%s > "$COOLDOWN_FILE"
-  echo "STOP BLOCKED by development-toolkit stop-guard:"
-  echo "  Active pipeline detected in $SPEC_DIR."
-  echo "  Pipeline has not completed code review."
-  echo "  Run /review to complete the review, or /commit to finalize."
-  echo "  If you want to abandon the pipeline, delete the spec directory first."
+  echo "STOP BLOCKED by development-toolkit stop-guard:" >&2
+  echo "  Active pipeline detected in $SPEC_DIR." >&2
+  echo "  Pipeline has not completed code review." >&2
+  echo "  Complete the code review, or commit to finalize." >&2
+  echo "  If you want to abandon the pipeline, delete the spec directory first." >&2
   exit 2
 fi
 
 if [ "$HAS_REVIEW" = true ] && [ "$HAS_COMMITS" = false ]; then
   date +%s > "$COOLDOWN_FILE"
-  echo "STOP BLOCKED by development-toolkit stop-guard:"
-  echo "  Code review is complete but changes are not committed."
-  echo "  Run /commit to commit and push changes."
+  echo "STOP BLOCKED by development-toolkit stop-guard:" >&2
+  echo "  Code review is complete but changes are not committed." >&2
+  echo "  Commit and push your changes to complete the pipeline." >&2
   exit 2
 fi
 
