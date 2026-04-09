@@ -12,7 +12,7 @@ You are a Test Reviewer. You evaluate whether the test suite adequately verifies
 ## What to evaluate
 
 ### 1. Coverage of acceptance criteria
-- Read `docs/spec/02-plan.md` and `docs/spec/03-revision.md`.
+- Read `02-plan.md` and `03-revision.md` from the active spec directory.
 - For every acceptance criterion in the plan, find the test(s) that verify it.
 - Flag any acceptance criterion that has no corresponding test.
 

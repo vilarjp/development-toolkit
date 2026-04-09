@@ -9,9 +9,10 @@ Implement the approved plan through disciplined, test-driven development. Use pa
 
 ## Prerequisites
 
-- `docs/spec/02-plan.md` must exist. This is the authoritative implementation reference.
-- `docs/spec/03-revision.md` must exist. Amendments in the revision take precedence over the original plan.
+- `02-plan.md` must exist in the active spec directory. To find it: check the most recent `docs/YYYY-MM-DD-*/` directory first, then fall back to `docs/spec/`. This is the authoritative implementation reference.
+- `03-revision.md` must exist in the same spec directory. Amendments in the revision take precedence over the original plan.
 - Human approval must have been given (Phase 3.8 gate passed). If you are not certain approval was given, ask.
+- **Spec directory:** If the pipeline orchestrator provided a spec directory path, use it. Otherwise, find it by checking the most recent `docs/YYYY-MM-DD-*/` directory, falling back to `docs/spec/`.
 - Project context from Phase 0 must be available. If not, run `/context` first.
 
 If any prerequisite is missing, STOP. Tell the user what is missing and how to fix it.
@@ -22,8 +23,8 @@ Execute these phases in strict order. Do not skip phases. Do not begin coding wi
 
 ### Phase 4.1 -- Parse the Plan
 
-1. Read `docs/spec/02-plan.md` completely
-2. Read `docs/spec/03-revision.md` completely -- amendments here override the original plan
+1. Read `02-plan.md` from the active spec directory
+2. Read `03-revision.md` from the active spec directory -- amendments here override the original plan
 3. For each implementation step, extract:
    - Title
    - Files to create or modify
@@ -60,7 +61,7 @@ Wave N:
      → Each subagent receives:
        - Project context (from Phase 0)
        - Full task text (from the plan -- the complete step, not a file reference)
-       - TDD rules (from skills/tdd/SKILL.md)
+       - TDD rules (load the full content of skills/tdd/SKILL.md — do not summarize from memory)
        - List of files it may touch (scope boundary)
      → Wait for ALL subagents in this wave to complete
   3. For steps marked [SEQUENTIAL]:
@@ -72,6 +73,9 @@ Wave N:
        a. Identify which step caused the failure (check which files were touched)
        b. Dispatch a fix to the responsible subagent
        c. Re-run the full test suite
+     → Run the project's code formatter on all files modified in this wave
+       (e.g., `npx prettier --write`, `python -m black`, `gofmt -w`).
+       This prevents external watchers from reverting changes between phases.
      → Do NOT proceed to the next wave until ALL tests pass
 ```
 
@@ -79,7 +83,9 @@ The wave gate is absolute. A single failing test blocks all subsequent waves. Fi
 
 ### Phase 4.4 -- Subagent Protocol
 
-Every subagent MUST follow the TDD cycle. No exceptions. No shortcuts.
+Every subagent MUST follow the TDD cycle defined in `skills/tdd/SKILL.md`. Load that file and inject its core sections (The Iron Law, The Cycle, Step-Back Protocol, The Delete Rule) into every subagent prompt. Do NOT summarize or paraphrase the TDD rules from memory — load the current file to prevent version drift.
+
+The following is a summary for the orchestrator's reference only. Subagents receive the full TDD rules from the source file.
 
 **RED -- Write a failing test:**
 1. Write a test for the first acceptance criterion
@@ -143,9 +149,10 @@ Process each subagent report:
 
 After ALL waves are complete:
 
-1. Run the FULL test suite one final time
-2. Run the linter (if the project has one configured)
-3. Run the type checker (if the project uses TypeScript, mypy, etc.)
+1. Run the project's code formatter (if configured) on all files modified during execution — e.g., `npx prettier --write <files>`, `python -m black <files>`, `gofmt -w <files>`. This prevents formatting violations from causing test failures or triggering external tool interference.
+2. Run the FULL test suite
+3. Run the linter (if the project has one configured)
+4. Run the type checker (if the project uses TypeScript, mypy, etc.)
 
 **If everything passes:**
 ```
@@ -200,11 +207,8 @@ Use this structure when dispatching implementation subagents. The full template 
 [explicit list of files from the step -- do NOT modify files outside this list]
 
 ## TDD Rules
-1. Write a FAILING test first. Run it. Confirm it fails.
-2. Write the MINIMUM code to make the test pass. Run it. Confirm it passes.
-3. Refactor while keeping tests green.
-4. Do NOT write production code without a failing test.
-5. If you wrote production code before a test, delete it and start over.
+[Injected from skills/tdd/SKILL.md — include The Iron Law, The Cycle (RED/GREEN/REFACTOR/COMMIT),
+the Step-Back Protocol, and The Delete Rule. Load the file at dispatch time; do not rely on memory.]
 
 ## Scope Boundary
 Do NOT:
@@ -250,6 +254,9 @@ If it is in the plan, it gets the full protocol: dispatch, TDD, report. XS steps
 The wave gate exists because later waves depend on earlier waves being correct. If Wave 1 has a bug, Wave 2 builds on that bug. Fix it now.
 
 See `references/testing-anti-patterns.md` for detailed testing anti-patterns with code examples.
+
+### "The External Formatter Will Handle It"
+No. Run the formatter yourself after writing code. External formatters (editor watchers, save hooks) can silently revert your changes if they detect violations. Format proactively, not reactively.
 
 ## Handoff
 

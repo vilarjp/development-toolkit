@@ -11,6 +11,9 @@ This is the bug-fix pipeline. It runs a shortened, diagnosis-driven flow from in
 
 **If the request is a feature, not a bug:** Use the feature pipeline (`development-toolkit:dev-pipeline`) instead. Do not use this pipeline for new features, enhancements, or refactoring.
 
+**FIRST ACTION — Non-Negotiable:**
+When this skill is loaded, your VERY FIRST action is to invoke `Skill: development-toolkit:context-loader`. Do NOT explore the codebase ad-hoc. Do NOT attempt a quick fix. Do NOT write code. Invoke context-loader. Then proceed to Phase 1R.
+
 ## Pipeline Overview
 
 ```
@@ -43,7 +46,7 @@ Between these steps, output ZERO additional text. No summaries, no narration.
 |-------|----------------|
 | 0 | `development-toolkit:context-loader` |
 | 1R | `development-toolkit:diagnosis` |
-| 4R | `development-toolkit:execute` (NOT `tdd` — execute internally enforces TDD) |
+| 4R | `development-toolkit:execute` (loads TDD rules from `skills/tdd/SKILL.md` internally) |
 | 5 | `development-toolkit:code-review` |
 | 6 | `development-toolkit:commit-push` |
 
@@ -81,11 +84,11 @@ Diagnosis document: docs/YYYY-MM-DD-<topic>/01-diagnosis.md
 
 [If TRIVIAL]:
   This appears to be a trivial fix. Options:
-  -> "apply" or "proceed" — apply fix directly and commit [Recommended]
+  -> "go" — apply fix directly and commit [Recommended]
   -> "full pipeline" — run full resolve pipeline (execute + review + commit)
 
 [If STANDARD or COMPLEX]:
-  -> "approve" or "proceed" to continue to Phase 4R (Fix)
+  -> "go" to continue to Phase 4R (Fix)
   -> "changes needed" with specifics to revise the diagnosis
   -> "stop" to pause the pipeline
 
@@ -252,3 +255,4 @@ If the pipeline is interrupted, determine the resume point from existing artifac
 | "The trivial fix should still go through full review" | The user approved the shortcut. TRIVIAL mode is LOCKED. Respect it. |
 | "Gate approval is just a formality" | Gates exist because humans catch things agents miss. |
 | "I'll dispatch the agents directly" | The skill handles orchestration. Bypass it and you miss error recovery. |
+| "Let me explore the code / try a quick fix first" | Context-loader handles project scanning. Diagnosis handles investigation. Start with Phase 0. |

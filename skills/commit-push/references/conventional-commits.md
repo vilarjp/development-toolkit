@@ -146,7 +146,7 @@ feat(auth): add email verification on signup
 New users must verify their email before accessing protected routes.
 Sends a verification link via SendGrid with a 24-hour expiry.
 
-See docs/spec/02-plan.md Step 2
+See 02-plan.md Step 2
 ```
 Why: imperative mood, clear scope, body explains WHY, references the plan.
 
@@ -257,8 +257,8 @@ Part of #789
 
 **Reference the project spec:**
 ```
-See docs/spec/02-plan.md Step 3
-Implements acceptance criteria from docs/spec/02-plan.md Step 5
+See 02-plan.md Step 3
+Implements acceptance criteria from 02-plan.md Step 5
 ```
 
 **Reference a Jira ticket:**

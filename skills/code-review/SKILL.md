@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Use after implementation is complete and all tests pass. Dispatches parallel reviewer subagents to evaluate code across five axes. Produces docs/spec/04-code-review.md with findings by severity.
+description: Use after implementation is complete and all tests pass. Dispatches parallel reviewer subagents to evaluate code across five axes. Produces 04-code-review.md in the active spec directory with findings by severity.
 ---
 
 # Code Review (Phase 5)
@@ -65,7 +65,7 @@ Dispatch the following reviewer subagents IN PARALLEL. They are read-only -- the
 
 **1. Plan Alignment Reviewer** (always dispatched)
 - Agent file: `agents/plan-alignment-reviewer.md`
-- Receives: full diff + relevant sections of `docs/spec/02-plan.md` (and `docs/spec/03-revision.md` if it exists)
+- Receives: full diff + relevant sections of `02-plan.md` from the active spec directory (and `03-revision.md` if it exists)
 - Checks: every planned feature is present, no unplanned additions exist without justification, acceptance criteria are met in code or tests
 
 **2. Code Quality Reviewer** (always dispatched)
@@ -165,7 +165,7 @@ When constructing reviewer prompts, load the template from `references/reviewer-
 - `[REVIEWER_PERSONA]` -- the reviewer's role description from the agent file frontmatter
 - `[AGENT_FILE]` -- the path to the agent's instruction file
 - `[PROJECT_CONTEXT]` -- the project context block from Phase 0
-- `[PLAN_REFERENCE]` -- the relevant section(s) of `docs/spec/02-plan.md`
+- `[PLAN_REFERENCE]` -- the relevant section(s) of `02-plan.md` from the active spec directory
 - `[DIFF]` -- the git diff for the files in this reviewer's scope
 
 ## Severity Classification

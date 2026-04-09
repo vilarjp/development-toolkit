@@ -7,6 +7,12 @@ description: Use when implementing any code change. Enforces the RED→GREEN→R
 
 Test-driven development enforcement for all implementation work. This skill is referenced by the execute phase and applies to every subagent.
 
+## Ownership
+
+During pipeline execution (Phase 4), the execute skill loads and injects these rules into subagent prompts. This file is the **single source of truth** for TDD methodology. The execute skill references it — it does not duplicate it.
+
+When invoked standalone via `/tdd`, this skill serves as a reference and enforcement guide for manual implementation work outside the pipeline.
+
 ## The Iron Law
 
 **NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST.**

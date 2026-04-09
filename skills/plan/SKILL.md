@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Use when you have a brainstorm document and need to create a technical implementation plan. Reads docs/spec/01-brainstorm.md and produces docs/spec/02-plan.md with architecture, steps, test strategy, and risk analysis.
+description: Use when you have a brainstorm document and need to create a technical implementation plan. Reads 01-brainstorm.md and produces 02-plan.md in the active spec directory with architecture, steps, test strategy, and risk analysis.
 ---
 
 # Plan (Phase 2)
@@ -20,7 +20,7 @@ Execute these phases in strict order. Do not skip phases. Do not write code.
 
 ### Phase 2.1 -- Load Context
 
-1. Read `docs/spec/01-brainstorm.md` -- understand the recommended direction, goals, non-goals, assumptions, and trade-offs
+1. Read `01-brainstorm.md` from the active spec directory -- understand the recommended direction, goals, non-goals, assumptions, and trade-offs
 2. Read project context from Phase 0 (if not available in the conversation, run `/context` first)
 3. Verify that the recommended direction from the brainstorm is compatible with the project's existing architecture and conventions
 4. If there is a conflict between the brainstorm's recommendation and the project reality, surface it now:
@@ -165,4 +165,4 @@ If you find yourself writing function bodies, database queries, or component JSX
 
 ## Handoff
 
-Plan complete. Proceed to `/revise` to cross-check the brainstorm and plan, or review `docs/spec/02-plan.md` first.
+Plan complete. Proceed to `/revise` to cross-check the brainstorm and plan, or review `02-plan.md` in the spec directory first.

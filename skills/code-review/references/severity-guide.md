@@ -71,7 +71,7 @@ A P1 finding means the code works for the happy path but has meaningful gaps tha
 - Test that passes for wrong reasons (assertion on wrong value)
 
 **Missing test for a planned acceptance criterion**
-- Acceptance criterion exists in `docs/spec/02-plan.md` but no test covers it
+- Acceptance criterion exists in `02-plan.md` but no test covers it
 - Test file exists but does not test the specified behavior
 - Edge case identified in the plan but not tested
 

@@ -9,13 +9,15 @@ Safely commit and push code changes with proper git hygiene. This phase enforces
 
 ## Prerequisites
 
-- Code review complete (Phase 5). `docs/spec/04-code-review.md` must exist with verdict APPROVE or REQUIRES CHANGES with all P0 issues resolved.
+- Code review complete (Phase 5). `04-code-review.md` must exist in the active spec directory with verdict APPROVE or REQUIRES CHANGES with all P0 issues resolved. To find it: check the most recent `docs/YYYY-MM-DD-*/` directory first, then fall back to `docs/spec/`.
 - All tests passing. If tests have not been run since the last code change, run them now.
 - No P0 issues outstanding from the code review.
 
 ## Process
 
 Execute these phases in strict order. Do not skip phases. Do not bypass checks.
+
+**Phase 6.2 is a HARD GATE.** Do NOT proceed to Phase 6.3 (staging) until ALL checks in Phase 6.2 pass. If you find yourself running `git add` without having run the test suite first, STOP. Go back to Phase 6.2.
 
 ### Phase 6.1 -- Branch Name Input
 
@@ -90,7 +92,7 @@ Run ALL of the following checks before staging any files. Every check must pass.
 
 **5. Scope verification**
 - List all files that have been modified (`git status`).
-- Compare against the files listed in `docs/spec/02-plan.md` and `docs/spec/04-code-review.md`.
+- Compare against the files listed in `02-plan.md` and `04-code-review.md` from the active spec directory.
 - Flag any modified file that is NOT in the plan or review scope. Ask the user to confirm inclusion or exclude it.
 
 ### Phase 6.3 -- Logical Commit Splitting
@@ -142,7 +144,7 @@ Format every commit message as:
 - Scope is the module or component name: `feat(auth): add login endpoint`
 - If the change is a breaking change, add `!` after the type: `feat!(api): remove deprecated login endpoint`
 - Body (mandatory for feature and fix commits, separated by blank line): explain WHY the change was made, not WHAT changed. The diff shows the what.
-- Reference the spec when applicable: "See docs/spec/02-plan.md Step 3"
+- Reference the spec when applicable: "See 02-plan.md Step 3"
 - Reference issues when applicable: "Closes #123" or "Fixes JIRA-456"
 
 **Testing scenarios section (mandatory in commit body for `feat` and `fix` types):**
@@ -181,7 +183,12 @@ After: No change — still proceeds to payment as before
 
 Include as many scenarios as are relevant to the change. Keep language clear and non-technical enough for a QA engineer to follow without reading the code.
 
-**Before writing the message**, check the project's recent git log:
+**Before writing the message**, check for a commitlint configuration:
+- Look for: `commitlint.config.cjs`, `commitlint.config.js`, `commitlint.config.ts`, `.commitlintrc`, `.commitlintrc.json`, `.commitlintrc.yaml`, or a `commitlint` section in `package.json`
+- If found, read the config to determine the expected format (type-enum, scope rules, header-max-length, etc.)
+- The commitlint config takes **precedence** over git log patterns — projects may have mixed historical styles but enforce a specific format going forward
+
+If no commitlint config is found, check the project's recent git log:
 ```
 git log --oneline -10
 ```
@@ -266,6 +273,8 @@ These rules have no exceptions. They cannot be overridden by user request, proje
 4. **NEVER use `git add -A` or `git add .` to stage files.** Always stage specific files by name. Mass staging picks up unintended files: debug logs, .env files, build artifacts, OS files (.DS_Store), editor files (.idea/, .vscode/).
 
 5. **NEVER commit files that may contain secrets.** This includes `.env`, `credentials.json`, `*.pem`, `*.key`, `serviceAccountKey.json`, and any file containing API keys, tokens, or passwords. If the user explicitly asks to commit such a file, refuse and explain the risk.
+
+6. **NEVER skip pre-commit verification (Phase 6.2).** Do not rely on Husky hooks as the only safety net. Run the test suite, linter, and type checker proactively before staging. "Tests passed in Phase 4" does not mean they still pass now — formatter interference, merge conflicts, or manual edits can break them.
 
 ## Error Recovery
 
