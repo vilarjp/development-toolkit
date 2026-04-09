@@ -36,7 +36,7 @@ You MUST NOT invent rules that are not explicitly stated in these files.
 
 ### Step 2: Map Project Structure
 
-List the project structure 2-3 levels deep using Glob or `ls`. Focus on:
+List the project structure 2-3 levels deep using Glob or `ls`. ALWAYS capture:
 - Top-level directories and their purposes
 - Source code location (src/, lib/, app/, etc.)
 - Test location (test/, __tests__/, *.test.*, *.spec.*)
@@ -92,7 +92,7 @@ For each detected config file, read it and extract:
 - **Test runner** -- what framework, what command to run tests
 - **Lint/format rules** -- what style is enforced
 
-Pay special attention to `scripts` in `package.json`, `[tool.*]` sections in `pyproject.toml`, and `Makefile` targets. These tell you how the project is operated.
+YOU MUST READ `scripts` in `package.json`, `[tool.*]` sections in `pyproject.toml`, and `Makefile` targets. These tell you how the project is operated.
 
 ### Step 5: Scan Architectural Conventions
 
@@ -186,7 +186,7 @@ Produce exactly this structure:
 - **Revision:** [exists/missing, status if exists]
 ```
 
-Keep the total output under 2,000 tokens. Prioritize information that affects implementation decisions.
+KEEP the total output under 2,000 tokens. ALWAYS prioritize information that affects implementation decisions.
 
 ## What This Phase Does NOT Do
 
@@ -198,10 +198,10 @@ Keep the total output under 2,000 tokens. Prioritize information that affects im
 
 This is a read-only reconnaissance phase. Its only job is to produce accurate context for subsequent phases.
 
-## Handoff
+## Transition
 
-Context loaded. The project context block above is now available for all subsequent phases. Suggest the appropriate next step:
-- If the user has a vague idea: "Context loaded. Ready to brainstorm (`/brainstorm`)."
-- If a brainstorm exists: "Context loaded. Ready to plan (`/plan`)."
-- If a plan exists: "Context loaded. Ready to revise (`/revise`)."
-- If the user asked for context only: "Context loaded. What would you like to do?"
+WHEN this skill completes:
+- RETURN the project context block to the calling pipeline.
+- DO NOT ask the user what to do next.
+- DO NOT summarize what you found unless the user explicitly asked for a context scan.
+- The calling pipeline WILL invoke the next phase. Your job is done.

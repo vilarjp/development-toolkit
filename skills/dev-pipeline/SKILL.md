@@ -7,9 +7,9 @@ description: Use when building a new feature, implementing a change, or starting
 
 This is the master skill. It runs the full development pipeline from idea to committed code. Every phase is executed in strict order. No phase is skipped. No gate is bypassed.
 
-**Trigger:** `/dev` or any request to build a feature, implement a change, or start a development cycle.
+**Trigger:** `Skill: development-toolkit:dev-pipeline` or any request to build a feature, implement a change, or start a development cycle.
 
-**Bug fix detection:** If the user's request describes a bug, error, regression, or broken behavior (keywords: "fix", "bug", "broken", "error", "not working", "regression", "crash", "failing"), delegate to the resolve pipeline instead: invoke `Skill: development-toolkit:resolve-pipeline` and stop. Do not run this feature pipeline for bug fixes.
+**Bug fix detection:** If the user's request describes a bug, error, regression, or broken behavior (keywords: "fix", "bug", "broken", "error", "not working", "regression", "crash", "failing"), DELEGATE to the resolve pipeline instead: INVOKE `Skill: development-toolkit:resolve-pipeline` and STOP. DO NOT run this feature pipeline for bug fixes.
 
 ## Pipeline Overview
 
@@ -54,7 +54,7 @@ Every phase transition follows the same three-step sequence. No exceptions.
   Skill: development-toolkit:[skill-name]
 ```
 
-**Step 2 — Invoke.** Call the `Skill` tool for the phase's skill. This is non-negotiable. Do not replicate a skill's steps manually — the `Skill` tool loads the current version and your memory of what it does may be stale.
+**Step 2 — Invoke.** Call the `Skill` tool for the phase's skill. This is non-negotiable. DO NOT replicate a skill's steps manually — the `Skill` tool loads the current version and your memory of what it does WILL be stale.
 
 **Step 3 — Verify.** Confirm the phase's output artifact exists before proceeding.
 
@@ -76,36 +76,48 @@ Between these steps, output ZERO additional text. No summaries, no narration, no
 
 ## Pipeline Execution Protocol
 
-When `/dev` is invoked with a user request, execute the following sequence exactly. Do not reorder, skip, or combine phases.
+When `Skill: development-toolkit:dev-pipeline` is invoked with a user request, EXECUTE the following sequence exactly. DO NOT reorder, skip, or combine phases.
 
 **FIRST ACTION — Non-Negotiable:**
-When this skill is loaded, your VERY FIRST action is to invoke `Skill: development-toolkit:context-loader`. Do NOT read the user's request in depth first. Do NOT explore the codebase. Do NOT fetch Jira tickets. Do NOT enter plan mode. Do NOT write code. Invoke context-loader. Then proceed to Phase 1.
+When this skill is loaded, your VERY FIRST action is to INVOKE `Skill: development-toolkit:context-loader`. DO NOT read the user's request in depth first. DO NOT explore the codebase. DO NOT fetch Jira tickets. DO NOT enter plan mode. DO NOT write code. INVOKE context-loader. Then PROCEED to Phase 1.
+
+### Pre-Flight -- Git Hygiene
+
+BEFORE invoking context-loader, ENSURE a clean git state. This step is MANDATORY and MUST NOT be skipped.
+
+1. RUN `git fetch origin` to get the latest remote state.
+2. RUN `git status --porcelain` to CHECK for staged or unstaged changes.
+   - IF dirty: RUN `git stash` and INFORM the user: "Stashed [N] uncommitted changes. Restore with `git stash pop` after the pipeline completes."
+3. DETERMINE the default branch (main or master) from the remote.
+4. DO NOT checkout the default branch — stay on the current branch or defer branch creation to Phase 6 (commit-push).
+
+This step ensures every pipeline run starts from a known-clean state.
 
 ### Phase 0 -- Context Loading
 
 Invoke `Skill: development-toolkit:context-loader`.
 
-Store the output as the **project context block** — it is injected into every subsequent phase. Do not skip this phase. Do not substitute cached context from a prior session.
+STORE the output as the **project context block** — it is injected into every subsequent phase. DO NOT skip this phase. DO NOT substitute cached context from a prior session.
 
-If context loading fails, STOP. Report the failure and ask the user to verify the working directory.
+If context loading fails, STOP. REPORT the failure and ASK the user to verify the working directory.
 
 ### Phase 1 -- Brainstorm
 
 Invoke `Skill: development-toolkit:brainstorm` with the user's original request and the project context block from Phase 0.
 
-Wait for completion. Verify `01-brainstorm.md` exists in the per-session spec directory. Do not proceed until the user has confirmed the recommended direction.
+WAIT for completion. VERIFY `01-brainstorm.md` exists in the per-session spec directory. DO NOT proceed until the user has confirmed the recommended direction.
 
 ### Phase 2 -- Planning
 
 Invoke `Skill: development-toolkit:plan` with the brainstorm output and project context.
 
-Wait for completion. Verify `02-plan.md` exists in the spec directory.
+WAIT for completion. VERIFY `02-plan.md` exists in the spec directory.
 
 ### Phase 3 -- Revision
 
 Invoke `Skill: development-toolkit:revision`.
 
-Wait for completion. Verify `03-revision.md` exists in the spec directory.
+WAIT for completion. VERIFY `03-revision.md` exists in the spec directory.
 
 ### HUMAN APPROVAL GATES (Complexity-Based)
 
@@ -115,7 +127,7 @@ The number and placement of approval gates depends on the complexity classificat
 **Strategy B (MEDIUM complexity):** Gate after Phase 2 (Planning) and after Phase 3 (Revision).
 **Strategy C (HIGH complexity):** Gate after Phase 1 (Brainstorm), after Phase 2 (Planning), and after Phase 3 (Revision).
 
-When a gate fires, present this message:
+When a gate fires, PRESENT this message:
 
 ```
 =====================================================================
@@ -143,19 +155,19 @@ Model override (optional — inherited model is used by default):
 **Handling responses:**
 - "approve", "proceed", "lgtm", "go", "let's go", "looks good", "ship it": proceed to the next phase with the inherited model.
 - "approve model opus", "proceed model haiku", etc.: proceed with the specified model override. When dispatching subagents in Phase 4 (execute) and Phase 5 (code-review), pass the override via the `model` parameter on the `Agent` tool call (e.g., `Agent(model: "opus", ...)`). The override applies to subagent dispatch only — skills are still invoked inline via the `Skill` tool.
-- "changes needed" or any feedback with specifics: apply the requested changes to the relevant documents, then re-present the gate. Do not re-run the full phase unless the changes are structural.
-- "stop": halt the pipeline. Report current state and how to resume later.
-- Silence or ambiguous response: ask for clarification. Do NOT interpret silence as approval.
+- "changes needed" or any feedback with specifics: APPLY the requested changes to the relevant documents, then RE-PRESENT the gate. DO NOT re-run the full phase unless the changes are structural.
+- "stop": HALT the pipeline. REPORT current state and how to resume later.
+- Silence or ambiguous response: ASK for clarification. DO NOT interpret silence as approval.
 
 These gates are non-negotiable. No rationalization bypasses them. "The user seems eager" does not bypass them. "The plan is straightforward" does not bypass them.
 
-**The post-Revision gate is always present, regardless of strategy.** The complexity-based strategy may add earlier gates but never removes the final pre-implementation gate.
+**The post-Revision gate is ALWAYS present, regardless of strategy.** The complexity-based strategy MUST add earlier gates as specified but NEVER removes the final pre-implementation gate.
 
 ### Phase 4 -- Execution
 
-Invoke `Skill: development-toolkit:execute`. Do not write any code before invoking this skill. Do not dispatch subagents without loading the skill first.
+INVOKE `Skill: development-toolkit:execute`. DO NOT write any code before invoking this skill. DO NOT dispatch subagents without loading the skill first.
 
-The plan (`02-plan.md` as amended by `03-revision.md`) is the authoritative source of truth. Subagents implement what the plan says — they do not add, remove, or reinterpret requirements.
+The plan (`02-plan.md` as amended by `03-revision.md`) is the authoritative source of truth. Subagents MUST implement what the plan says — they MUST NOT add, remove, or reinterpret requirements.
 
 ### TEST GATE
 
@@ -176,11 +188,11 @@ After Phase 4 completes, the execute skill runs a final verification:
   Attempted fixes: [summary]
   Human intervention needed before proceeding.
   ```
-- Do NOT proceed to code review with failing tests.
+- DO NOT proceed to code review with failing tests.
 
 ### Phase 5 -- Code Review
 
-Invoke `Skill: development-toolkit:code-review`. Do not dispatch reviewer subagents directly — the skill handles diff partitioning, agent dispatch, result collection, deduplication, and severity classification.
+INVOKE `Skill: development-toolkit:code-review`. DO NOT dispatch reviewer subagents directly — the skill handles diff partitioning, agent dispatch, result collection, deduplication, and severity classification.
 
 ### HUMAN APPROVAL GATE #2 (Conditional)
 
@@ -204,19 +216,34 @@ Reply with one of:
 ```
 
 **Handling responses:**
-- "fix": resolve each P0 issue, then re-run Phase 5 (code review) to confirm the fixes. Do not skip the re-review.
-- "override": proceed to Phase 6. Log the override decision in `04-code-review.md` with a note that the human accepted the risk.
-- "stop": halt the pipeline. Report current state.
+- "fix": RESOLVE each P0 issue, then RE-RUN Phase 5 (code review) to confirm the fixes. DO NOT skip the re-review.
+- "override": PROCEED to Phase 6. LOG the override decision in `04-code-review.md` with a note that the human accepted the risk.
+- "stop": HALT the pipeline. REPORT current state.
 
-**If no P0 issues exist:** skip this gate entirely and proceed directly to Phase 6.
+**If no P0 issues exist:** SKIP this gate entirely and PROCEED directly to Phase 6.
+
+### Finding Selection Loop
+
+After Phase 5 (code review) completes and Gate #2 is resolved, the code-review skill presents a finding selection gate (Phase 5.7). The user selects which findings to address.
+
+**IF the user selects findings to fix:**
+1. FIX the selected findings (apply minimal targeted changes).
+2. RUN the full test suite. ALL tests MUST pass.
+3. RE-INVOKE `Skill: development-toolkit:code-review` on the new changes.
+4. The code-review skill WILL present the finding selection gate again.
+5. REPEAT until the user selects "none" with no remaining P0 issues.
+
+**IF the user selects "none" and no P0 issues remain:** PROCEED to Phase 6.
+
+DO NOT proceed to Phase 6 while the finding selection loop is active. DO NOT auto-fix findings without user selection.
 
 ### Phase 6 -- Commit and Push
 
-Invoke `Skill: development-toolkit:commit-push`. Do not run `git add`, `git commit`, or `git push` directly — the skill enforces branch safety, pre-commit verification, logical commit splitting, and rebase-before-push.
+INVOKE `Skill: development-toolkit:commit-push`. DO NOT run `git add`, `git commit`, or `git push` directly — the skill enforces branch safety, pre-commit verification, logical commit splitting, and rebase-before-push.
 
 ### Pipeline Complete
 
-After Phase 6 succeeds, present this summary:
+After Phase 6 succeeds, PRESENT this summary:
 
 ```
 =====================================================================
@@ -242,29 +269,29 @@ Next steps:
 
 ## Standalone Phase Execution
 
-Each phase can be invoked independently via its slash command:
+Each phase can be invoked independently via its skill:
 
-| Command | Skill | Standalone Behavior |
-|---------|-------|-------------------|
-| `/context` | context-loader | Run Phase 0 only. No prerequisites. |
-| `/brainstorm` | brainstorm | Requires project context. If missing, runs `/context` first. |
-| `/diagnose` | diagnosis | Requires project context. Produces `01-diagnosis.md`. |
-| `/plan` | plan | Requires `01-brainstorm.md`. If missing, tells user to run `/brainstorm`. |
-| `/revise` | revision | Requires `01-brainstorm.md` and `02-plan.md`. Reports which is missing. |
-| `/execute` | execute | Requires `02-plan.md`, `03-revision.md`, and human approval. |
-| `/review` | code-review | Requires all tests passing. Runs test suite to verify. |
-| `/commit` | commit-push | Requires `04-code-review.md` with no unresolved P0 issues. |
+| Skill | Standalone Behavior |
+|-------|-------------------|
+| `development-toolkit:context-loader` | RUN Phase 0 only. No prerequisites. |
+| `development-toolkit:brainstorm` | Requires project context. If missing, INVOKE `development-toolkit:context-loader` first. |
+| `development-toolkit:diagnosis` | Requires project context. Produces `01-diagnosis.md`. |
+| `development-toolkit:plan` | Requires `01-brainstorm.md`. If missing, INFORM the user to run `development-toolkit:brainstorm`. |
+| `development-toolkit:revision` | Requires `01-brainstorm.md` and `02-plan.md`. REPORT which is missing. |
+| `development-toolkit:execute` | Requires `02-plan.md`, `03-revision.md`, and human approval. |
+| `development-toolkit:code-review` | Requires all tests passing. RUNS test suite to verify. |
+| `development-toolkit:commit-push` | Requires `04-code-review.md` with no unresolved P0 issues. |
 
 When invoked standalone:
-1. Load project context fresh via `/context` (unless already available in the current session).
-2. Check prerequisites. If a prerequisite artifact is missing, tell the user which phase to run first. Do NOT silently generate the missing artifact.
-3. Execute the single phase and stop. Do not auto-advance to subsequent phases.
+1. LOAD project context fresh via `Skill: development-toolkit:context-loader` (unless already available in the current session).
+2. CHECK prerequisites. If a prerequisite artifact is missing, TELL the user which phase to run first. DO NOT silently generate the missing artifact.
+3. EXECUTE the single phase and STOP. DO NOT auto-advance to subsequent phases.
 
 ## Resume and Recovery
 
-If the pipeline is interrupted (session ends, user stops, crash), determine the resume point from existing artifacts when `/dev` is invoked again:
+If the pipeline is interrupted (session ends, user stops, crash), DETERMINE the resume point from existing artifacts when `Skill: development-toolkit:dev-pipeline` is invoked again:
 
-**Detection logic:** Find the most recent per-session spec directory (see AGENTS.md "Spec directory convention"). Also check `docs/spec/` for legacy artifacts. Then check in order:
+**Detection logic:** FIND the most recent per-session spec directory (see AGENTS.md "Spec directory convention"). ALSO check `docs/spec/` for legacy artifacts. Then CHECK in order:
 
 1. `04-code-review.md` exists -> resume at Phase 6 (Commit).
 2. Code changes exist (modified files beyond spec docs) but no `04-code-review.md` -> resume at Phase 5 (Code Review).
@@ -273,12 +300,12 @@ If the pipeline is interrupted (session ends, user stops, crash), determine the 
 5. `01-brainstorm.md` exists -> resume at Phase 2 (Planning).
 6. No artifacts exist -> start from Phase 0.
 
-**If `01-diagnosis.md` exists instead of `01-brainstorm.md`:** This is a resolve pipeline run. Delegate to `Skill: development-toolkit:resolve-pipeline` which has its own resume logic.
+**If `01-diagnosis.md` exists instead of `01-brainstorm.md`:** This is a resolve pipeline run. DELEGATE to `Skill: development-toolkit:resolve-pipeline` which has its own resume logic.
 
 **Resume protocol:**
-1. Run `/context` to load fresh project context (always -- cached context from a dead session is stale).
-2. Read all existing spec artifacts to rebuild the pipeline state.
-3. Present the resume point to the user:
+1. RUN `Skill: development-toolkit:context-loader` to load fresh project context (ALWAYS -- cached context from a dead session is stale).
+2. READ all existing spec artifacts to rebuild the pipeline state.
+3. PRESENT the resume point to the user:
    ```
    PIPELINE RESUME
    Found existing artifacts:
@@ -288,7 +315,7 @@ If the pipeline is interrupted (session ends, user stops, crash), determine the 
    -> "restart" to start the pipeline from scratch
    -> "phase N" to jump to a specific phase
    ```
-4. Wait for the user to confirm before proceeding. Do NOT auto-resume.
+4. WAIT for the user to confirm before proceeding. DO NOT auto-resume.
 
 If the user says "restart," archive existing specs by renaming the spec directory to `docs/<dir>-archived-<timestamp>/` and start fresh from Phase 0.
 
@@ -302,15 +329,15 @@ These rules apply to the orchestrator at all times. They are not suggestions.
 
 3. **NEVER write code before Phase 4.** Phases 0-3 are thinking phases. They produce documents, not code. If you find yourself writing function bodies, component JSX, database queries, or any implementation during Phases 0-3, STOP. You have crossed a phase boundary.
 
-4. **The plan is the source of truth for execution.** `02-plan.md` as amended by `03-revision.md` is the authoritative reference. Subagents implement what the plan says. The orchestrator does not reinterpret, expand, or reduce the plan.
+4. **The plan is the source of truth for execution.** `02-plan.md` as amended by `03-revision.md` is the authoritative reference. Subagents implement what the plan says. The orchestrator MUST NOT reinterpret, expand, or reduce the plan.
 
 5. **Every line of production code must be justified by a failing test.** TDD is enforced in Phase 4 via the `tdd` skill. No exceptions for "trivial" code, configuration files, or "obvious" implementations.
 
-6. **If any phase fails, diagnose before retrying.** Do not blindly re-run a failed phase. Read the error, understand the cause, fix the input or environment, then retry. Repeating the same action expecting a different result is not a recovery strategy.
+6. **If any phase fails, DIAGNOSE before retrying.** DO NOT blindly re-run a failed phase. READ the error, UNDERSTAND the cause, FIX the input or environment, then retry. Repeating the same action expecting a different result is not a recovery strategy.
 
-7. **Spec artifacts are append-only during execution.** Once Phase 4 begins, `01-brainstorm.md`, `02-plan.md`, and `03-revision.md` are frozen. They may be referenced but not modified. If execution reveals a plan problem, escalate to the human rather than silently editing the plan.
+7. **Spec artifacts are append-only during execution.** Once Phase 4 begins, `01-brainstorm.md`, `02-plan.md`, and `03-revision.md` are frozen. They MUST only be referenced, NEVER modified. If execution reveals a plan problem, escalate to the human rather than silently editing the plan.
 
-8. **Subagents are stateless and isolated.** Each subagent receives its full context in the dispatch prompt. Subagents do not communicate with each other. All coordination flows through the orchestrator. If subagent A produces output that subagent B needs, the orchestrator passes it.
+8. **Subagents are stateless and isolated.** Each subagent receives its full context in the dispatch prompt. Subagents MUST NOT communicate with each other. All coordination flows through the orchestrator. If subagent A produces output that subagent B needs, the orchestrator passes it.
 
 ## Anti-Rationalization Table
 
@@ -329,4 +356,12 @@ These rules apply to the orchestrator at all times. They are not suggestions.
 | "I know the TDD/review/commit steps, I'll do them manually" | Skills evolve. Your memory may be stale. Invoke the Skill tool — it loads the current version. Manual replication caused skipped steps in past sessions. |
 | "I'll dispatch the agents directly, same thing" | No. The skill handles orchestration, result collection, and error recovery that you will miss if you bypass it. |
 | "Let me fetch the Jira ticket / explore the code first" | Context-loader handles project scanning. Jira context belongs in the brainstorm phase, not before Phase 0. Start with context-loader. |
-| "I'll use EnterPlanMode to think this through" | The pipeline IS the thinking structure. Do not enter plan mode. Invoke context-loader and let the pipeline phases do the thinking. |
+| "I'll use EnterPlanMode to think this through" | The pipeline IS the thinking structure. DO NOT enter plan mode. INVOKE context-loader and let the pipeline phases do the thinking. |
+
+## Transition
+
+WHEN this pipeline completes:
+- DISPLAY the PIPELINE COMPLETE summary.
+- DO NOT ask "what would you like to do next?"
+- DO NOT suggest additional work unless the user asks.
+- The pipeline is finished. The session can end or the user can start a new task.
