@@ -37,7 +37,7 @@ templates/         Document templates for spec artifacts
 
 ## Rules for modifying templates
 
-- Templates live in `templates/` and are used by skills to create spec artifacts in `docs/spec/`.
+- Templates live in `templates/` and are used by skills to create spec artifacts in per-session directories under `docs/` (format: `docs/YYYY-MM-DD-short-description/`).
 - Never modify a template without updating the corresponding skill that uses it.
 - Templates use `{{placeholder}}` syntax for dynamic content.
 - YAML frontmatter in templates defines metadata fields that skills must populate.

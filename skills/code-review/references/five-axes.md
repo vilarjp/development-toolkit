@@ -71,7 +71,7 @@ Does the code fit the system's structure and the plan's design?
 
 ### What to look for
 
-- **Plan alignment:** Does the implementation match the architecture described in `docs/spec/02-plan.md`? Are components, modules, and boundaries where the plan says they should be?
+- **Plan alignment:** Does the implementation match the architecture described in `02-plan.md`? Are components, modules, and boundaries where the plan says they should be?
 - **Separation of concerns:** Does each module, class, or function have a single responsibility? Is business logic separated from presentation, I/O, and framework code?
 - **Dependency direction:** Do dependencies flow from outer layers (UI, API) inward (domain, core)? Does core logic depend on framework specifics?
 - **Abstraction appropriateness:** Are abstractions at the right level? An abstraction used in one place is premature. An abstraction used in five places is justified. A missing abstraction duplicated across files is a gap.

@@ -1,6 +1,6 @@
 ---
 name: revision
-description: Use after brainstorm and plan are written to cross-check both documents for gaps, inconsistencies, and last-minute adjustments. Produces docs/spec/03-revision.md and triggers human approval gate.
+description: Use after brainstorm and plan are written to cross-check both documents for gaps, inconsistencies, and last-minute adjustments. Produces 03-revision.md in the active spec directory and triggers human approval gate.
 ---
 
 # Revision (Phase 3)
@@ -20,8 +20,8 @@ Execute these phases in strict order. Do not skip phases. Do not skim documents.
 
 ### Phase 3.1 -- Load Both Documents
 
-1. Read `docs/spec/01-brainstorm.md` completely -- every section, every bullet, every assumption
-2. Read `docs/spec/02-plan.md` completely -- every step, every file list, every acceptance criterion
+1. Read `01-brainstorm.md` from the active spec directory -- every section, every bullet, every assumption
+2. Read `02-plan.md` from the active spec directory -- every step, every file list, every acceptance criterion
 3. If project context is available from an earlier phase, use it. Otherwise, run context-loader.
 
 You must have all three inputs loaded before proceeding: brainstorm, plan, and project context. Do not begin cross-referencing with partial information.
@@ -112,12 +112,11 @@ After writing the revision, present this message to the user:
 
 ```
 All three specification documents are ready for review:
-  1. docs/spec/01-brainstorm.md — Problem exploration and recommended direction
-  2. docs/spec/02-plan.md — Technical implementation plan
-  3. docs/spec/03-revision.md — Cross-document review and adjustments
+  1. 01-brainstorm.md — Problem exploration and recommended direction
+  2. 02-plan.md — Technical implementation plan
+  3. 03-revision.md — Cross-document review and adjustments
 
-Please review these documents and confirm you approve proceeding to implementation.
-If changes are needed, specify which document and section to update.
+Reply "go" to proceed to implementation, or describe changes needed (specify document and section).
 ```
 
 Do NOT proceed to execution without explicit human approval. "Sounds good" or "let's go" counts as approval. Silence does not. If the user does not respond, wait.

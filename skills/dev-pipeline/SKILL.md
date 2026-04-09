@@ -34,6 +34,16 @@ Phase 6 (Commit)     <- Phase 5 (Review)      <- Phase 4 (Execute)    <-+
                       +-----------+           +-------------+
 ```
 
+## Spec Directory Protocol
+
+The spec directory path is computed ONCE during Phase 1 (Brainstorm) and reused by all subsequent phases. This prevents directory drift between phases.
+
+**Computation:** The brainstorm skill creates the spec directory using the convention `docs/YYYY-MM-DD-short-description-of-topic/`. After Phase 1 completes, record this path.
+
+**Propagation:** When invoking subsequent skills (Phases 2-6), include the spec directory path as context: "Spec directory: `docs/YYYY-MM-DD-<topic>/`". Skills write their artifacts to this exact directory.
+
+**Resume:** When resuming a pipeline, detect the spec directory by finding the most recent `docs/YYYY-MM-DD-*/` directory containing pipeline artifacts. Fall back to `docs/spec/` for legacy runs.
+
 ## Phase Transition Protocol
 
 Every phase transition follows the same three-step sequence. No exceptions.
@@ -67,6 +77,9 @@ Between these steps, output ZERO additional text. No summaries, no narration, no
 ## Pipeline Execution Protocol
 
 When `/dev` is invoked with a user request, execute the following sequence exactly. Do not reorder, skip, or combine phases.
+
+**FIRST ACTION — Non-Negotiable:**
+When this skill is loaded, your VERY FIRST action is to invoke `Skill: development-toolkit:context-loader`. Do NOT read the user's request in depth first. Do NOT explore the codebase. Do NOT fetch Jira tickets. Do NOT enter plan mode. Do NOT write code. Invoke context-loader. Then proceed to Phase 1.
 
 ### Phase 0 -- Context Loading
 
@@ -113,8 +126,8 @@ Specification documents ready for review:
 
   [List only the documents produced so far]
 
-Please review and confirm:
-  -> "approve" or "proceed" to continue to the next phase
+Reply with one of:
+  -> "go" to proceed to the next phase
   -> "changes needed" with specifics to revise
   -> "stop" to pause the pipeline
 
@@ -182,7 +195,7 @@ Code review found [N] critical issue(s):
 
   [List each P0 with title and file location]
 
-Options:
+Reply with one of:
   -> "fix" -- I'll resolve these and re-review
   -> "override" -- Proceed despite critical issues (at your risk)
   -> "stop" -- Pause the pipeline
@@ -315,3 +328,5 @@ These rules apply to the orchestrator at all times. They are not suggestions.
 | "The revision found nothing, so I'll skip it next time" | If revision found nothing, you did not look hard enough. Never skip it. |
 | "I know the TDD/review/commit steps, I'll do them manually" | Skills evolve. Your memory may be stale. Invoke the Skill tool — it loads the current version. Manual replication caused skipped steps in past sessions. |
 | "I'll dispatch the agents directly, same thing" | No. The skill handles orchestration, result collection, and error recovery that you will miss if you bypass it. |
+| "Let me fetch the Jira ticket / explore the code first" | Context-loader handles project scanning. Jira context belongs in the brainstorm phase, not before Phase 0. Start with context-loader. |
+| "I'll use EnterPlanMode to think this through" | The pipeline IS the thinking structure. Do not enter plan mode. Invoke context-loader and let the pipeline phases do the thinking. |

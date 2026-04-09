@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: Use when exploring a new feature, change, or problem before committing to a direction. Produces docs/spec/01-brainstorm.md with problem statement, goals, options, and recommended direction.
+description: Use when exploring a new feature, change, or problem before committing to a direction. Produces 01-brainstorm.md in a per-session spec directory with problem statement, goals, options, and recommended direction.
 ---
 
 # Brainstorm (Phase 1)
@@ -9,7 +9,7 @@ Explore the problem space before committing to a solution. This phase produces a
 
 ## Prerequisites
 
-Phase 0 (context-loader) must have run. If no project context is available in the conversation, run `/context` first. Do not proceed without project context.
+Phase 0 (context-loader) must have run. If no project context block is present in this conversation, invoke `Skill: development-toolkit:context-loader` NOW before proceeding. This is not optional — do not substitute ad-hoc exploration for the context-loader skill.
 
 ## Process
 
