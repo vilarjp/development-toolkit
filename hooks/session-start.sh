@@ -37,7 +37,7 @@ if [ -d "docs" ]; then
   LATEST_SPEC=$(find docs -maxdepth 1 -type d -name "20*" 2>/dev/null | sort -r | head -1)
   if [ -n "$LATEST_SPEC" ]; then
     if [ ! -f "$LATEST_SPEC/04-code-review.md" ]; then
-      STALLED_MSG="STALLED PIPELINE DETECTED in $LATEST_SPEC. Run /dev to resume or start fresh."
+      STALLED_MSG="STALLED PIPELINE DETECTED in $LATEST_SPEC. Resume the pipeline or start fresh."
     fi
   fi
 fi
@@ -46,7 +46,7 @@ fi
 if [ -z "$STALLED_MSG" ] && [ -d "docs/spec" ]; then
   LATEST_ARTIFACT=$(ls -t docs/spec/*.md 2>/dev/null | head -1)
   if [ -n "$LATEST_ARTIFACT" ] && [ ! -f "docs/spec/04-code-review.md" ]; then
-    STALLED_MSG="STALLED PIPELINE DETECTED in docs/spec/. Run /dev to resume or start fresh."
+    STALLED_MSG="STALLED PIPELINE DETECTED in docs/spec/. Resume the pipeline or start fresh."
   fi
 fi
 

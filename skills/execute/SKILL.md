@@ -9,23 +9,23 @@ Implement the approved plan through disciplined, test-driven development. Use pa
 
 ## Prerequisites
 
-- `02-plan.md` must exist in the active spec directory. To find it: check the most recent `docs/YYYY-MM-DD-*/` directory first, then fall back to `docs/spec/`. This is the authoritative implementation reference.
-- `03-revision.md` must exist in the same spec directory. Amendments in the revision take precedence over the original plan.
-- Human approval must have been given (Phase 3.8 gate passed). If you are not certain approval was given, ask.
-- **Spec directory:** If the pipeline orchestrator provided a spec directory path, use it. Otherwise, find it by checking the most recent `docs/YYYY-MM-DD-*/` directory, falling back to `docs/spec/`.
-- Project context from Phase 0 must be available. If not, run `/context` first.
+- `02-plan.md` MUST exist in the active spec directory. To find it: CHECK the most recent `docs/YYYY-MM-DD-*/` directory first, then fall back to `docs/spec/`. This is the authoritative implementation reference.
+- `03-revision.md` MUST exist in the same spec directory. Amendments in the revision take precedence over the original plan.
+- Human approval MUST have been given (Phase 3.8 gate passed). If you are not certain approval was given, STOP and ask.
+- **Spec directory:** If the pipeline orchestrator provided a spec directory path, use it. Otherwise, FIND it by checking the most recent `docs/YYYY-MM-DD-*/` directory, falling back to `docs/spec/`.
+- Project context from Phase 0 MUST be available. If not, RUN `Skill: development-toolkit:context-loader` first.
 
 If any prerequisite is missing, STOP. Tell the user what is missing and how to fix it.
 
 ## Process
 
-Execute these phases in strict order. Do not skip phases. Do not begin coding without completing validation.
+EXECUTE these phases in strict order. DO NOT skip phases. DO NOT begin coding without completing validation.
 
 ### Phase 4.1 -- Parse the Plan
 
-1. Read `02-plan.md` from the active spec directory
-2. Read `03-revision.md` from the active spec directory -- amendments here override the original plan
-3. For each implementation step, extract:
+1. READ `02-plan.md` from the active spec directory
+2. READ `03-revision.md` from the active spec directory -- amendments here override the original plan
+3. For each implementation step, EXTRACT:
    - Title
    - Files to create or modify
    - Dependencies (which steps must complete first)
@@ -33,21 +33,21 @@ Execute these phases in strict order. Do not skip phases. Do not begin coding wi
    - Test strategy
    - Scope estimate (XS/S/M)
    - Parallelization classification ([PARALLEL] or [SEQUENTIAL])
-4. Extract the Execution Waves table
-5. Build the dependency graph in memory: a directed acyclic graph where nodes are steps and edges are dependencies
+4. EXTRACT the Execution Waves table
+5. BUILD the dependency graph in memory: a directed acyclic graph where nodes are steps and edges are dependencies
 
 If the revision document modified any step, use the revised version. The revision always wins.
 
 ### Phase 4.2 -- Validate Before Starting
 
-Before writing a single line of code, verify:
+Before writing a single line of code, VERIFY:
 
 1. **Acyclicity:** The dependency graph has no cycles. Trace every path. If a cycle exists, STOP and report.
 2. **Parallel safety:** No two [PARALLEL] steps in the same wave share files. Compare file lists for every parallel pair within each wave. If overlap exists, STOP and report.
-3. **Test runner:** The test runner exists and works. Run the project's test command. It should either pass (existing tests green) or report "no tests found" (empty suite). If it errors with a configuration problem, fixing the test runner IS the first task -- execute it before any wave.
-4. **Environment:** Required dependencies are installed. The project builds. If it does not build, STOP and report.
+3. **Test runner:** The test runner MUST exist and work. RUN the project's test command. It MUST either pass (existing tests green) or report "no tests found" (empty suite). If it errors with a configuration problem, fixing the test runner IS the first task -- EXECUTE it before any wave.
+4. **Environment:** Required dependencies MUST be installed. The project MUST build. If it does not build, STOP and report.
 
-If any validation fails, STOP and report the specific issue. Do NOT attempt to fix structural problems silently. The human must know.
+If any validation fails, STOP and report the specific issue. DO NOT attempt to fix structural problems silently. The human MUST know.
 
 ### Phase 4.3 -- Execute Wave by Wave
 
@@ -55,59 +55,67 @@ For each wave in the Execution Waves table, in order:
 
 ```
 Wave N:
-  1. Identify all steps in this wave
+  1. IDENTIFY all steps in this wave
   2. For steps marked [PARALLEL] that share no files:
-     → Dispatch one subagent per step CONCURRENTLY
-     → Each subagent receives:
+     → DISPATCH one subagent per step CONCURRENTLY
+     → Each subagent MUST receive:
        - Project context (from Phase 0)
        - Full task text (from the plan -- the complete step, not a file reference)
        - TDD rules (load the full content of skills/tdd/SKILL.md — do not summarize from memory)
        - List of files it may touch (scope boundary)
-     → Wait for ALL subagents in this wave to complete
+     → WAIT for ALL subagents in this wave to complete
   3. For steps marked [SEQUENTIAL]:
-     → Execute one at a time, inline or via single subagent
-     → Wait for each to complete before starting the next
+     → EXECUTE one at a time, inline or via single subagent
+     → WAIT for each to complete before starting the next
   4. After all steps in the wave complete:
-     → Run the FULL test suite
+     → RUN the FULL test suite
      → If any test fails:
-       a. Identify which step caused the failure (check which files were touched)
-       b. Dispatch a fix to the responsible subagent
-       c. Re-run the full test suite
-     → Run the project's code formatter on all files modified in this wave
+       a. IDENTIFY which step caused the failure (check which files were touched)
+       b. DISPATCH a fix to the responsible subagent
+       c. RE-RUN the full test suite
+     → RUN the project's code formatter on all files modified in this wave
        (e.g., `npx prettier --write`, `python -m black`, `gofmt -w`).
        This prevents external watchers from reverting changes between phases.
-     → Do NOT proceed to the next wave until ALL tests pass
+     → DO NOT proceed to the next wave until ALL tests pass
 ```
 
 The wave gate is absolute. A single failing test blocks all subsequent waves. Fix it or escalate.
 
 ### Phase 4.4 -- Subagent Protocol
 
-Every subagent MUST follow the TDD cycle defined in `skills/tdd/SKILL.md`. Load that file and inject its core sections (The Iron Law, The Cycle, Step-Back Protocol, The Delete Rule) into every subagent prompt. Do NOT summarize or paraphrase the TDD rules from memory — load the current file to prevent version drift.
+**MANDATORY TDD INJECTION — DO NOT SKIP THIS STEP.**
+
+1. OPEN and READ the file `skills/tdd/SKILL.md` NOW. DO NOT rely on memory of its contents.
+2. EXTRACT the following sections verbatim: The Iron Law, The Cycle (RED/GREEN/REFACTOR/COMMIT), the Step-Back Protocol, and The Delete Rule.
+3. INJECT these sections into EVERY subagent prompt under the `## TDD Rules` heading.
+4. DO NOT paraphrase, summarize, or abbreviate the TDD rules. Copy them exactly.
+5. BEFORE dispatching any subagent, VERIFY that the subagent prompt contains the TDD rules section. If it does not, STOP and add them.
+
+If you skip this step, subagents will deviate from TDD discipline. This has caused failures in past sessions.
 
 The following is a summary for the orchestrator's reference only. Subagents receive the full TDD rules from the source file.
 
 **RED -- Write a failing test:**
-1. Write a test for the first acceptance criterion
-2. Run the test
-3. Confirm it FAILS
-4. If it passes, the test is wrong -- it is not testing the right thing. Fix the test.
+1. WRITE a test for the first acceptance criterion
+2. RUN the test
+3. VERIFY it FAILS
+4. If it passes, the test is wrong -- it is not testing the right thing. FIX the test.
 
 **GREEN -- Write minimum code to pass:**
-1. Write the minimum production code to make the failing test pass
-2. Run the test
-3. Confirm it PASSES
-4. Do not write more code than needed. Do not "future-proof." Do not add features.
+1. WRITE the minimum production code to make the failing test pass
+2. RUN the test
+3. VERIFY it PASSES
+4. DO NOT write more code than needed. DO NOT "future-proof." DO NOT add features.
 
 **REFACTOR -- Clean up while green:**
-1. Refactor the code for clarity, removing duplication
-2. Run all tests
-3. Confirm they still PASS
-4. If any test fails during refactoring, undo the refactoring and try again
+1. REFACTOR the code for clarity, removing duplication
+2. RUN all tests
+3. VERIFY they still PASS
+4. If any test fails during refactoring, UNDO the refactoring and try again
 
 **Repeat** for each acceptance criterion until the step is complete.
 
-Each subagent reports back with exactly one status:
+Each subagent MUST report back with exactly one status:
 
 - **DONE** -- Task complete. All acceptance criteria met. All tests passing. Include a summary of what was implemented and the test count.
 - **DONE_WITH_CONCERNS** -- Task complete, all tests passing, but flagging a potential issue. Describe the concern in detail: what might break, under what conditions, and what the suggested remedy is.
@@ -122,10 +130,10 @@ Every subagent report MUST end with a structured result block for machine-parsea
 
 Process each subagent report:
 
-- **DONE:** Proceed to the next step or wave gate.
-- **DONE_WITH_CONCERNS:** Log the concern in a running list. Proceed. Review all concerns during the final code review phase.
-- **NEEDS_CONTEXT:** Provide the requested context. Re-dispatch the subagent with the additional information. If the context does not exist, escalate to the human.
-- **BLOCKED:** Escalate to the human immediately. Do NOT attempt to work around a block without human input.
+- **DONE:** PROCEED to the next step or wave gate.
+- **DONE_WITH_CONCERNS:** LOG the concern in a running list. PROCEED. REVIEW all concerns during the final code review phase.
+- **NEEDS_CONTEXT:** PROVIDE the requested context. RE-DISPATCH the subagent with the additional information. If the context does not exist, ESCALATE to the human.
+- **BLOCKED:** ESCALATE to the human immediately. DO NOT attempt to work around a block without human input.
 
 **The Step-Back Protocol:** When a subagent fails repeatedly on the same task:
 
@@ -137,22 +145,22 @@ Process each subagent report:
      - What assumption might be wrong
      - Is the plan step ambiguous or contradictory?
   3. Try a fundamentally different approach (not a variation of the same idea)
-**Strike 3 — ESCALATE:** If the different approach also fails, escalate to the human with:
+**Strike 3 — ESCALATE:** If the different approach also fails, ESCALATE to the human with:
   - The task description
   - All three failure attempts with reasoning
   - The step-back analysis from Strike 2
   - Your assessment of whether this is an implementation problem or a plan problem
 
-**Circuit Breaker:** If the escalation reveals a diagnosis or plan problem (not an implementation problem), the orchestrator may re-dispatch a targeted investigation or revision before retrying execution.
+**Circuit Breaker:** If the escalation reveals a diagnosis or plan problem (not an implementation problem), the orchestrator MUST re-dispatch a targeted investigation or revision before retrying execution.
 
 ### Phase 4.6 -- Final Test Gate
 
 After ALL waves are complete:
 
-1. Run the project's code formatter (if configured) on all files modified during execution — e.g., `npx prettier --write <files>`, `python -m black <files>`, `gofmt -w <files>`. This prevents formatting violations from causing test failures or triggering external tool interference.
-2. Run the FULL test suite
-3. Run the linter (if the project has one configured)
-4. Run the type checker (if the project uses TypeScript, mypy, etc.)
+1. RUN the project's code formatter (if configured) on all files modified during execution — e.g., `npx prettier --write <files>`, `python -m black <files>`, `gofmt -w <files>`. This prevents formatting violations from causing test failures or triggering external tool interference.
+2. RUN the FULL test suite
+3. RUN the linter (if the project has one configured)
+4. RUN the type checker (if the project uses TypeScript, mypy, etc.)
 
 **If everything passes:**
 ```
@@ -161,11 +169,11 @@ Implementation complete. Ready for code review (/code-review).
 ```
 
 **If anything fails:**
-1. Identify the failure
-2. Fix it (one attempt)
-3. Re-run the full suite
+1. IDENTIFY the failure
+2. FIX it (one attempt)
+3. RE-RUN the full suite
 4. If it fails again, try once more (second attempt)
-5. If it fails a third time, escalate:
+5. If it fails a third time, ESCALATE:
 ```
 Final test gate failed after 3 attempts.
 Failing: [test name / lint rule / type error]
@@ -175,11 +183,11 @@ The implementation is incomplete. Human intervention needed.
 
 ### Phase 4.7 -- Collect Implementation Notes
 
-After all waves complete and the final test gate passes, collect implementation notes from all subagents:
+After all waves complete and the final test gate passes, COLLECT implementation notes from all subagents:
 
-1. For each subagent that reported DONE or DONE_WITH_CONCERNS, extract the Implementation Notes section from its report.
-2. Compile all notes into a single document organized by wave and step.
-3. Pass the compiled notes to Phase 5 (Code Review) as additional context for reviewers.
+1. For each subagent that reported DONE or DONE_WITH_CONCERNS, EXTRACT the Implementation Notes section from its report.
+2. COMPILE all notes into a single document organized by wave and step.
+3. PASS the compiled notes to Phase 5 (Code Review) as additional context for reviewers.
 
 Implementation notes include:
 - **Approach:** What was done and why
@@ -229,17 +237,17 @@ When done, report exactly one of:
 
 ## Rules
 
-- NEVER dispatch parallel subagents for steps that share files. Even if the plan says [PARALLEL], verify file lists at runtime before dispatching. The runtime check overrides the plan.
+- NEVER dispatch parallel subagents for steps that share files. Even if the plan says [PARALLEL], ALWAYS VERIFY file lists at runtime before dispatching. The runtime check overrides the plan.
 - Subagents do NOT communicate with each other. All coordination goes through the orchestrator. If subagent A produces output that subagent B needs, the orchestrator passes it.
-- Each subagent starts fresh. No inherited session context. No leftover state. Everything the subagent needs must be in its prompt.
+- Each subagent starts fresh. No inherited session context. No leftover state. Everything the subagent needs MUST be in its prompt.
 - If the project has no test runner yet, setting it up IS the first task. Execute it before any plan wave. A plan without a test runner is not implementable under TDD.
-- Do NOT combine steps. Each step is dispatched as a single unit. If two steps seem related, they are still separate dispatches.
-- Do NOT reorder waves. Wave 1 before Wave 2 before Wave 3. Always.
+- DO NOT combine steps. Each step MUST be dispatched as a single unit. If two steps seem related, they are still separate dispatches.
+- DO NOT reorder waves. Wave 1 before Wave 2 before Wave 3. ALWAYS.
 
 ## Anti-Patterns
 
 ### "Let Me Just Write All the Code First"
-No. TDD means test first, code second. If a subagent produces code without a failing test, reject the output and re-dispatch.
+No. TDD means test first, code second. If a subagent produces code without a failing test, REJECT the output and RE-DISPATCH.
 
 ### "The Tests Are Slowing Us Down"
 Tests are not overhead. They are the delivery mechanism. Code without tests is not done. A fast implementation that breaks in production is not fast.
@@ -258,6 +266,8 @@ See `references/testing-anti-patterns.md` for detailed testing anti-patterns wit
 ### "The External Formatter Will Handle It"
 No. Run the formatter yourself after writing code. External formatters (editor watchers, save hooks) can silently revert your changes if they detect violations. Format proactively, not reactively.
 
-## Handoff
+## Transition
 
-Implementation complete. All tests pass. Proceed to `/code-review` for structured review of all changes.
+WHEN this skill completes (all waves done, final test gate passed):
+- IF running inside a pipeline: RETURN control to the pipeline orchestrator with implementation notes. The orchestrator WILL invoke the code-review skill. DO NOT invoke code-review yourself. DO NOT ask the user what to do next.
+- IF running standalone: REPORT implementation complete with test count and implementation notes. INFORM the user: "Implementation complete. All tests pass. Invoke `development-toolkit:code-review` to review the changes."

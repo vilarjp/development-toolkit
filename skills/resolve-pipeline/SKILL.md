@@ -7,38 +7,38 @@ description: Use when fixing a bug, error, regression, or broken behavior. Orche
 
 This is the bug-fix pipeline. It runs a shortened, diagnosis-driven flow from investigation to committed fix. Every phase is executed in strict order. No phase is skipped. No gate is bypassed.
 
-**Trigger:** `/resolve`, `/fix`, or any request that describes a bug, error, regression, or broken behavior (keywords: "fix", "bug", "broken", "error", "not working", "regression", "crash", "failing").
+**Trigger:** `Skill: development-toolkit:resolve-pipeline`, or any request that describes a bug, error, regression, or broken behavior (keywords: "fix", "bug", "broken", "error", "not working", "regression", "crash", "failing").
 
-**If the request is a feature, not a bug:** Use the feature pipeline (`development-toolkit:dev-pipeline`) instead. Do not use this pipeline for new features, enhancements, or refactoring.
+**If the request is a feature, not a bug:** INVOKE the feature pipeline (`Skill: development-toolkit:dev-pipeline`) instead. DO NOT use this pipeline for new features, enhancements, or refactoring.
 
 **FIRST ACTION — Non-Negotiable:**
-When this skill is loaded, your VERY FIRST action is to invoke `Skill: development-toolkit:context-loader`. Do NOT explore the codebase ad-hoc. Do NOT attempt a quick fix. Do NOT write code. Invoke context-loader. Then proceed to Phase 1R.
+When this skill is loaded, your VERY FIRST action is to invoke `Skill: development-toolkit:context-loader`. DO NOT explore the codebase ad-hoc. DO NOT attempt a quick fix. DO NOT write code. INVOKE context-loader. Then PROCEED to Phase 1R.
 
 ## Pipeline Overview
 
 ```
-Phase 0 (Context)  ->  Phase 1R (Diagnosis)  ->  APPROVAL GATE  ->  Phase 4R (Fix)  ->  TEST GATE  ->  Phase 5 (Review)  ->  Phase 6 (Commit)
-  context-loader        diagnosis                (diagnosis review)   execute (prove-it)                  code-review           commit-push
-  in-memory context     01-diagnosis.md                                source + tests                     04-code-review.md     git history
+Pre-Flight (Git)  ->  Phase 0 (Context)  ->  Phase 1R (Diagnosis)  ->  APPROVAL GATE  ->  Phase 4R (Fix)  ->  TEST GATE  ->  Phase 5 (Review)  ->  Finding Selection Loop  ->  Phase 6 (Commit)
+  git hygiene           context-loader        diagnosis                (diagnosis review)   execute (prove-it)                  code-review           (iterative fix cycle)       commit-push
+                        in-memory context     01-diagnosis.md                                source + tests                     04-code-review.md                                 git history
 ```
 
 Phases 2 (Planning) and 3 (Revision) are skipped. The diagnosis document serves as both investigation and fix plan.
 
 ## Phase Transition Protocol
 
-Every phase transition follows the same three-step sequence. No exceptions.
+Every phase transition MUST follow the same three-step sequence. No exceptions.
 
-**Step 1 — Label.** Output the progress label (the ONLY text allowed between phases):
+**Step 1 — LABEL.** OUTPUT the progress label (the ONLY text allowed between phases):
 ```
 ▶ Phase [N] — [Phase Name] (resolve)
   Skill: development-toolkit:[skill-name]
 ```
 
-**Step 2 — Invoke.** Call the `Skill` tool for the phase's skill. This is non-negotiable. Do not replicate a skill's steps manually — the `Skill` tool loads the current version.
+**Step 2 — INVOKE.** CALL the `Skill` tool for the phase's skill. This is non-negotiable. DO NOT replicate a skill's steps manually — the `Skill` tool loads the current version.
 
-**Step 3 — Verify.** Confirm the phase's output artifact exists before proceeding.
+**Step 3 — VERIFY.** CONFIRM the phase's output artifact exists before proceeding.
 
-Between these steps, output ZERO additional text. No summaries, no narration.
+Between these steps, OUTPUT ZERO additional text. No summaries, no narration.
 
 ### Skill Invocation Table
 
@@ -50,25 +50,37 @@ Between these steps, output ZERO additional text. No summaries, no narration.
 | 5 | `development-toolkit:code-review` |
 | 6 | `development-toolkit:commit-push` |
 
-**If you find yourself executing a phase's logic without having called `Skill` for that phase, STOP. Go back and invoke the skill.**
+**If you find yourself executing a phase's logic without having called `Skill` for that phase, STOP. GO BACK and INVOKE the skill.**
 
 ## Pipeline Execution Protocol
 
+### Pre-Flight -- Git Hygiene
+
+BEFORE invoking context-loader, ENSURE a clean git state. This step is MANDATORY and MUST NOT be skipped.
+
+1. RUN `git fetch origin` to get the latest remote state.
+2. RUN `git status --porcelain` to CHECK for staged or unstaged changes.
+   - IF dirty: RUN `git stash` and INFORM the user: "Stashed [N] uncommitted changes. Restore with `git stash pop` after the pipeline completes."
+3. DETERMINE the default branch (main or master) from the remote.
+4. DO NOT checkout the default branch — stay on the current branch or defer branch creation to Phase 6 (commit-push).
+
+This step ensures every pipeline run starts from a known-clean state.
+
 ### Phase 0 -- Context Loading
 
-Invoke `Skill: development-toolkit:context-loader`.
+INVOKE `Skill: development-toolkit:context-loader`.
 
-Store the output as the **project context block**. This block is injected into every subsequent phase. If context loading fails, STOP and report.
+STORE the output as the **project context block**. This block MUST be injected into every subsequent phase. If context loading fails, STOP and REPORT.
 
 ### Phase 1R -- Diagnosis
 
-Invoke `Skill: development-toolkit:diagnosis` with the user's bug description and the project context block from Phase 0.
+INVOKE `Skill: development-toolkit:diagnosis` with the user's bug description and the project context block from Phase 0.
 
-Wait for completion. Verify `01-diagnosis.md` exists in the per-session spec directory.
+WAIT for completion. VERIFY `01-diagnosis.md` exists in the per-session spec directory.
 
 ### DIAGNOSIS APPROVAL GATE
 
-After the diagnosis skill completes, present this gate:
+After the diagnosis skill completes, PRESENT this gate:
 
 ```
 =====================================================================
@@ -100,50 +112,50 @@ Model override (optional — inherited model is used by default):
 ```
 
 **Handling responses:**
-- "approve", "proceed", "apply", "lgtm", "go", "let's go", "looks good", "ship it": proceed based on severity (see below).
-- "approve model opus", etc.: proceed with the specified model override for subagent dispatch.
-- "changes needed" or feedback with specifics: apply changes to the diagnosis, then re-present the gate.
-- "full pipeline": decline the trivial escape hatch — continue with Phase 4R -> TEST GATE -> Phase 5 -> Phase 6.
-- "stop": halt the pipeline. Report current state.
-- Silence or ambiguous response: ask for clarification. Do NOT interpret silence as approval.
+- "approve", "proceed", "apply", "lgtm", "go", "let's go", "looks good", "ship it": PROCEED based on severity (see below).
+- "approve model opus", etc.: PROCEED with the specified model override for subagent dispatch.
+- "changes needed" or feedback with specifics: APPLY changes to the diagnosis, then RE-PRESENT the gate.
+- "full pipeline": DECLINE the trivial escape hatch — CONTINUE with Phase 4R -> TEST GATE -> Phase 5 -> Phase 6.
+- "stop": HALT the pipeline. REPORT current state.
+- Silence or ambiguous response: ASK for clarification. DO NOT interpret silence as approval.
 
 ### Trivial Escape Hatch
 
 If the diagnosis severity is **TRIVIAL** AND the user approves the trivial path:
 
-The pipeline enters **TRIVIAL mode**. The following phases are **LOCKED OUT** — do NOT invoke them:
+The pipeline enters **TRIVIAL mode**. The following phases are **LOCKED OUT** — DO NOT invoke them:
 - Phase 4R (Fix) — DO NOT invoke `development-toolkit:execute` or `development-toolkit:tdd`
 - Phase 5 (Code Review) — DO NOT invoke `development-toolkit:code-review` or dispatch reviewer agents
 
 **TRIVIAL mode steps (the ONLY steps allowed):**
-1. Apply the fix directly (the suggested fix from `01-diagnosis.md`)
-2. Write the regression test (the reproduction test from `01-diagnosis.md`)
-3. Run the full test suite
-4. If tests pass: proceed directly to Phase 6 — invoke `Skill: development-toolkit:commit-push`
-5. If tests fail: fix and retry up to 3 times. If still failing, escalate to user.
+1. APPLY the fix directly (the suggested fix from `01-diagnosis.md`)
+2. WRITE the regression test (the reproduction test from `01-diagnosis.md`)
+3. RUN the full test suite
+4. If tests pass: PROCEED directly to Phase 6 — INVOKE `Skill: development-toolkit:commit-push`
+5. If tests fail: FIX and RETRY up to 3 times. If still failing, ESCALATE to user.
 
 **TRIVIAL mode guard:** If you find yourself about to invoke `development-toolkit:execute`, `development-toolkit:tdd`, `development-toolkit:code-review`, or dispatch any reviewer agent — STOP. You are violating TRIVIAL mode. The user approved the shortcut. Respect it.
 
 ### Phase 4R -- Fix (Prove-It TDD)
 
-Invoke `Skill: development-toolkit:execute` with the following modifications:
-1. Read `01-diagnosis.md` instead of `02-plan.md`
-2. The reproduction test from the diagnosis IS the first RED test — do not write a new one
-3. Follow the Prove-It pattern: reproduce, confirm failure, fix, verify, run full suite
-4. The fix must be minimal — address the root cause and nothing else
-5. A regression test must exist when done (the reproduction test serves as this)
+INVOKE `Skill: development-toolkit:execute` with the following modifications:
+1. READ `01-diagnosis.md` instead of `02-plan.md`
+2. The reproduction test from the diagnosis IS the first RED test — DO NOT write a new one
+3. FOLLOW the Prove-It pattern: REPRODUCE, CONFIRM failure, FIX, VERIFY, RUN full suite
+4. The fix MUST be minimal — ADDRESS the root cause and nothing else
+5. A regression test MUST exist when done (the reproduction test serves as this)
 
 ### TEST GATE
 
-After Phase 4R completes, verify:
-1. Full test suite passes
-2. Linter clean (if configured)
-3. Type checker valid (if applicable)
+After Phase 4R completes, VERIFY:
+1. Full test suite MUST pass
+2. Linter MUST be clean (if configured)
+3. Type checker MUST be valid (if applicable)
 
-**If everything passes:** proceed to Phase 5.
+**If everything passes:** PROCEED to Phase 5.
 
 **If any check fails:**
-- Attempt up to 3 fix-and-retry cycles.
+- ATTEMPT up to 3 fix-and-retry cycles.
 - If still failing after 3 attempts:
   ```
   TEST GATE FAILED after 3 attempts.
@@ -151,13 +163,13 @@ After Phase 4R completes, verify:
   Attempted fixes: [summary]
   Human intervention needed before proceeding.
   ```
-- Do NOT proceed to code review with failing tests.
+- DO NOT proceed to code review with failing tests.
 
 ### Phase 5 -- Code Review
 
-Invoke `Skill: development-toolkit:code-review`.
+INVOKE `Skill: development-toolkit:code-review`.
 
-In resolve mode, the code-review skill uses `01-diagnosis.md` as the plan reference instead of `02-plan.md`.
+In resolve mode, the code-review skill MUST use `01-diagnosis.md` as the plan reference instead of `02-plan.md`.
 
 ### HUMAN APPROVAL GATE #2 (Conditional)
 
@@ -180,11 +192,26 @@ Options:
 =====================================================================
 ```
 
-**If no P0 issues exist:** skip this gate and proceed to Phase 6.
+**If no P0 issues exist:** SKIP this gate and PROCEED to Phase 6.
+
+### Finding Selection Loop
+
+After Phase 5 (code review) completes and Gate #2 is resolved, the code-review skill presents a finding selection gate (Phase 5.7). The user selects which findings to address.
+
+**IF the user selects findings to fix:**
+1. FIX the selected findings (apply minimal targeted changes).
+2. RUN the full test suite. ALL tests MUST pass.
+3. RE-INVOKE `Skill: development-toolkit:code-review` on the new changes.
+4. The code-review skill WILL present the finding selection gate again.
+5. REPEAT until the user selects "none" with no remaining P0 issues.
+
+**IF the user selects "none" and no P0 issues remain:** PROCEED to Phase 6.
+
+DO NOT proceed to Phase 6 while the finding selection loop is active. DO NOT auto-fix findings without user selection.
 
 ### Phase 6 -- Commit and Push
 
-Invoke `Skill: development-toolkit:commit-push`.
+INVOKE `Skill: development-toolkit:commit-push`.
 
 ### Pipeline Complete
 
@@ -210,19 +237,19 @@ Next steps:
 
 ## Resume and Recovery
 
-If the pipeline is interrupted, determine the resume point from existing artifacts:
+If the pipeline is interrupted, DETERMINE the resume point from existing artifacts:
 
-**Detection logic (check in order):**
+**Detection logic (CHECK in order):**
 
-1. `04-code-review.md` exists -> resume at Phase 6 (Commit).
-2. Code changes exist (modified files beyond spec docs) but no `04-code-review.md` -> resume at Phase 5 (Code Review).
-3. `01-diagnosis.md` exists -> resume at Diagnosis Approval Gate (present diagnosis for approval first).
-4. No artifacts exist -> start from Phase 0.
+1. `04-code-review.md` exists -> RESUME at Phase 6 (Commit).
+2. Code changes exist (modified files beyond spec docs) but no `04-code-review.md` -> RESUME at Phase 5 (Code Review).
+3. `01-diagnosis.md` exists -> RESUME at Diagnosis Approval Gate (PRESENT diagnosis for approval first).
+4. No artifacts exist -> START from Phase 0.
 
 **Resume protocol:**
-1. Run `/context` to load fresh project context (always — cached context is stale).
-2. Read all existing spec artifacts.
-3. Present the resume point:
+1. RUN `Skill: development-toolkit:context-loader` to load fresh project context (ALWAYS — cached context is stale).
+2. READ all existing spec artifacts.
+3. PRESENT the resume point:
    ```
    RESOLVE PIPELINE RESUME
    Found existing artifacts:
@@ -231,18 +258,18 @@ If the pipeline is interrupted, determine the resume point from existing artifac
    -> "continue" to proceed from here
    -> "restart" to start the pipeline from scratch
    ```
-4. Wait for confirmation. Do NOT auto-resume.
+4. WAIT for confirmation. DO NOT auto-resume.
 
 ## Rules
 
-1. **Do NOT brainstorm solutions for bugs.** The diagnosis identifies the root cause and suggests a fix. Brainstorming options is for features, not bugs.
-2. **Do NOT plan or revise for bugs.** The diagnosis serves as both investigation and plan. Phases 2 and 3 do not exist in this pipeline.
-3. **The reproduction test is mandatory.** If the bug cannot be reproduced in a test, document why in the diagnosis and proceed with caution.
-4. **Minimal fix only.** Do not refactor, clean up, or improve adjacent code during a bug fix. One bug, one fix, one test.
-5. **If the fix reveals a deeper architectural problem,** STOP. Escalate to the user. The bug may require a feature-level pipeline run instead.
-6. **NEVER skip a phase.** Phase 0 -> 1R -> Gate -> 4R -> Test Gate -> 5 -> 6. In order.
+1. **DO NOT brainstorm solutions for bugs.** The diagnosis identifies the root cause and suggests a fix. Brainstorming options is for features, not bugs.
+2. **DO NOT plan or revise for bugs.** The diagnosis serves as both investigation and plan. Phases 2 and 3 DO NOT exist in this pipeline.
+3. **The reproduction test is MANDATORY.** If the bug cannot be reproduced in a test, DOCUMENT why in the diagnosis and PROCEED with caution.
+4. **Minimal fix only.** DO NOT refactor, clean up, or improve adjacent code during a bug fix. One bug, one fix, one test.
+5. **If the fix reveals a deeper architectural problem,** STOP. ESCALATE to the user. The bug MUST use a feature-level pipeline run instead.
+6. **NEVER skip a phase.** Pre-Flight -> Phase 0 -> 1R -> Gate -> 4R -> Test Gate -> 5 -> Finding Selection Loop -> 6. In order.
 7. **NEVER proceed past a gate without explicit human approval.**
-8. **Spec artifacts are frozen during execution.** Once Phase 4R begins, `01-diagnosis.md` is read-only. If execution reveals a diagnosis problem, escalate.
+8. **Spec artifacts are frozen during execution.** Once Phase 4R begins, `01-diagnosis.md` is read-only. If execution reveals a diagnosis problem, ESCALATE.
 
 ## Anti-Rationalization Table
 
@@ -255,4 +282,12 @@ If the pipeline is interrupted, determine the resume point from existing artifac
 | "The trivial fix should still go through full review" | The user approved the shortcut. TRIVIAL mode is LOCKED. Respect it. |
 | "Gate approval is just a formality" | Gates exist because humans catch things agents miss. |
 | "I'll dispatch the agents directly" | The skill handles orchestration. Bypass it and you miss error recovery. |
-| "Let me explore the code / try a quick fix first" | Context-loader handles project scanning. Diagnosis handles investigation. Start with Phase 0. |
+| "Let me explore the code / try a quick fix first" | Context-loader handles project scanning. Diagnosis handles investigation. START with Pre-Flight, then Phase 0. |
+
+## Transition
+
+WHEN this pipeline completes:
+- DISPLAY the RESOLVE PIPELINE COMPLETE summary.
+- DO NOT ask "what would you like to do next?"
+- DO NOT suggest additional work unless the user asks.
+- The pipeline is finished. The session can end or the user can start a new task.

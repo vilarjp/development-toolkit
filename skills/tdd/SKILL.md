@@ -11,13 +11,15 @@ Test-driven development enforcement for all implementation work. This skill is r
 
 During pipeline execution (Phase 4), the execute skill loads and injects these rules into subagent prompts. This file is the **single source of truth** for TDD methodology. The execute skill references it — it does not duplicate it.
 
-When invoked standalone via `/tdd`, this skill serves as a reference and enforcement guide for manual implementation work outside the pipeline.
+When invoked standalone via `Skill: development-toolkit:tdd`, this skill serves as a reference and enforcement guide for manual implementation work outside the pipeline.
+
+**Subagent self-check:** If you are a subagent executing an implementation step and you do NOT see TDD rules injected into your prompt, STOP. Report NEEDS_CONTEXT with the message: 'TDD rules not found in prompt. The execute skill must inject skills/tdd/SKILL.md content.'
 
 ## The Iron Law
 
 **NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST.**
 
-This is not a suggestion. This is not "when practical." This is not "for complex features." This is absolute. Every line of production code must be justified by a test that failed without it.
+This is not a suggestion. This is not "when practical." This is not "for complex features." This is absolute. Every line of production code MUST be justified by a test that failed without it.
 
 ## Model Configuration
 
@@ -46,13 +48,13 @@ Every acceptance criterion goes through this cycle independently. Do not batch. 
    - The test has a tautological assertion (fix the assertion)
 6. Do NOT proceed to GREEN until you have a genuine failure
 
-The failure message should describe the missing behavior. A good failure: `expected 3 but got undefined`. A bad failure: `TypeError: cannot read property of null` -- this means the test setup is wrong, not that the feature is missing.
+The failure message MUST describe the missing behavior. A good failure: `expected 3 but got undefined`. A bad failure: `TypeError: cannot read property of null` -- this means the test setup is wrong, not that the feature is missing.
 
 ### GREEN -- Write Minimum Code
 
 1. Write the absolute minimum production code that makes the failing test pass
 2. Run the test suite
-3. ALL tests must pass -- not just the new one
+3. ALL tests MUST pass -- not just the new one
 4. If other tests break, your code has an unintended side effect. Fix it.
 5. "Minimum" means minimum. If the test expects `return 3`, write `return 3`. The next test will force the real implementation.
 
@@ -170,7 +172,7 @@ expect(user.name).toBe("Alice");
 
 ## Test Pyramid
 
-Target these ratios. Adjust based on the project's nature, but deviations should be intentional and justified.
+Target these ratios. Adjust based on the project's nature, but deviations MUST be intentional and justified.
 
 **80% Unit Tests**
 - Test pure logic in isolation
@@ -216,6 +218,6 @@ Every excuse for skipping TDD has been made before. None of them hold.
 
 If you find yourself making an excuse, stop. Write the test. Then write the code.
 
-## Handoff
+## Transition
 
-This skill does not hand off. It is active during all implementation work. It terminates when the calling context (execute phase or direct implementation) completes.
+This skill does not transition to another skill. It is active during all implementation work and terminates when the calling context (execute phase or standalone implementation) completes. DO NOT ask the user what to do next when implementation finishes — the calling context handles the transition.

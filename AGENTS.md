@@ -23,7 +23,6 @@ skills/            Skill definitions (SKILL.md + references/)
   context-loader/    Phase 0: project scanning
   using-toolkit/     Meta-skill: discovery + operating behaviors
 agents/            Agent personas for parallel reviewer subagents
-commands/          Slash command definitions (thin markdown files)
 hooks/             Session and pre-tool hooks
 templates/         Document templates for spec artifacts
 ```
@@ -49,12 +48,6 @@ templates/         Document templates for spec artifacts
 - Agent instructions define the reviewer's scope, methodology, and output format.
 - All agents must include the iron rule: read actual code, do not trust self-reported claims.
 
-## Rules for modifying commands
-
-- Commands live in `commands/` as thin markdown files.
-- Each command describes what it does and its usage pattern.
-- Commands map to skill invocations — they do not contain logic themselves.
-
 ## Spec directory convention
 
 Pipeline artifacts are stored in per-session directories under `docs/`:
@@ -78,6 +71,6 @@ docs/YYYY-MM-DD-short-description/
 Test any skill changes by running the skill in a sample project:
 
 1. Install the plugin in a test project
-2. Run the relevant slash command
+2. Run the relevant skill
 3. Verify the skill produces correct output
 4. Verify hooks fire correctly
