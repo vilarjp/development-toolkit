@@ -41,7 +41,7 @@ if [ -d "docs" ]; then
     [ -f "$LATEST_SPEC/01-brainstorm.md" ] && HAS_START=true
     [ -f "$LATEST_SPEC/01-diagnosis.md" ] && HAS_START=true && IS_RESOLVE=true
 
-    # Check for review artifact (v2.1.0 numbering: 05-code-review.md)
+    # Check for review artifact (v2.2.0 numbering: 05-code-review.md)
     [ -f "$LATEST_SPEC/05-code-review.md" ] && HAS_REVIEW=true
     # Also check legacy numbering for backwards compatibility
     [ -f "$LATEST_SPEC/04-code-review.md" ] && HAS_REVIEW=true

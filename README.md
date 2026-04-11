@@ -55,11 +55,11 @@ Context -> Brainstorm -> Plan -> Revision -> [APPROVAL] -> Execute -> [TESTS] ->
 | 0 | (in-memory) | Scans project structure, config, conventions |
 | 1 | `01-brainstorm.md` | Socratic exploration + self-review + visual companion offer |
 | 2 | `02-plan.md` | Research sub-agents + architecture + confidence check + mandatory test paths |
-| 3 | `03-revision.md` | Cross-check + scope creep detection + non-goals coverage + plan update |
+| 3 | `03-revision.md` | Cross-check + scope creep detection + adversarial review + plan update |
 | | | **Human approval gate** |
 | 4 | `04-execution-log.md` | Parallel subagents, TDD, incremental commits per wave |
 | | | **Test gate** |
-| 5 | `05-code-review.md` | Conditional reviewers, structured JSON findings, confidence gating, dedup |
+| 5 | `05-code-review.md` | Two-stage review (spec compliance gate, then code quality), structured JSON findings, confidence gating, dedup |
 | 5.5 | (appended to 05) | Auto-fix safe_auto, human triage, bounded re-review (max 3 rounds) |
 | 6 | git history | Conventional commits, lint gate, PR description |
 | 7 | `06-solutions.md` | Problem summary, approach, key decisions, gotchas |
@@ -92,7 +92,7 @@ The review system uses structured JSON findings with a full processing pipeline:
 
 ### Findings Schema
 
-Every reviewer returns JSON with fields: `title`, `severity` (P0-P3), `file`, `line`, `impact`, `autofix` (safe_auto/gated_auto/manual/advisory), `confidence` (0.0-1.0), `evidence[]`, `pre_existing`, `suggested_fix`, `needs_verification`.
+Every reviewer returns JSON with fields: `title`, `severity` (P0-P3), `file`, `line`, `impact`, `intent` (file/line-independent description), `autofix` (safe_auto/gated_auto/manual/advisory), `confidence` (0.0-1.0), `evidence[]`, `pre_existing`, `suggested_fix`, `needs_verification`.
 
 ### Confidence Gating
 
@@ -120,6 +120,12 @@ After review: safe_auto fixes applied automatically, gated_auto/manual presented
 | plan-alignment-reviewer | Conditional: plan exists | Yes | Sonnet/medium |
 | security-reviewer | Conditional: auth/input/API/payment/data | Yes | Sonnet/medium |
 | convention-reviewer | Conditional: area has 3+ files | No | Sonnet/medium |
+
+### Adversarial Agent (Phase 3)
+
+| Agent | Dispatch | Model |
+|-------|----------|-------|
+| adversarial-reviewer | Always during revision | Sonnet/medium |
 
 ### Investigation Agent
 
@@ -175,7 +181,8 @@ development-toolkit/
   skills/
     using-toolkit/SKILL.md          # Meta-skill: tier classification + operating behaviors
     context-loader/SKILL.md         # Phase 0: project scanning
-    brainstorm/SKILL.md             # Phase 1: Socratic exploration + self-review
+    brainstorm/SKILL.md             # Phase 1: Socratic exploration + self-review + council debate
+      references/council-debate.md  # Multi-perspective debate protocol for architectural decisions
     diagnosis/SKILL.md              # Phase 1R: structured bug investigation
     plan/SKILL.md                   # Phase 2: research + architecture + confidence check
     revision/SKILL.md               # Phase 3: cross-check + scope creep + plan update
@@ -192,6 +199,7 @@ development-toolkit/
     plan-alignment-reviewer.md      # Conditional, blocking
     security-reviewer.md            # Conditional, blocking
     convention-reviewer.md          # Conditional, non-blocking
+    adversarial-reviewer.md         # Revision phase: stress-tests premises and assumptions
     resolve-investigator.md         # Diagnosis phase only
   templates/
     01-brainstorm.md
