@@ -1,27 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Detect plugin directory from this script's location
+# Session start hook — injects the meta-skill and detects stalled pipelines.
+# Uses status field in YAML frontmatter and updated artifact numbering (05-code-review.md).
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGIN_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 SKILL_FILE="$PLUGIN_DIR/skills/using-toolkit/SKILL.md"
 
 if [[ ! -f "$SKILL_FILE" ]]; then
-  # Skill file not found — emit a warning but do not fail
   cat <<'WARN_EOF'
 {
   "priority": "IMPORTANT",
-  "message": "[development-toolkit] Warning: skills/using-toolkit/SKILL.md not found. The toolkit is installed but the meta-skill could not be loaded. Run /context to verify your installation."
+  "message": "[development-toolkit] Warning: skills/using-toolkit/SKILL.md not found. The toolkit is installed but the meta-skill could not be loaded."
 }
 WARN_EOF
   exit 0
 fi
 
-# Read skill content and escape it for JSON embedding
-SKILL_CONTENT="$(cat "$SKILL_FILE")"
-
-# Use python3 (available on macOS) to safely JSON-encode the content
+# Read skill content and JSON-encode it
 ESCAPED="$(python3 -c "
 import json, sys
 with open(sys.argv[1], 'r') as f:
@@ -32,27 +30,44 @@ print(json.dumps(content))
 # Check for stalled pipeline artifacts
 STALLED_MSG=""
 
-# Check new per-session folder convention
 if [ -d "docs" ]; then
   LATEST_SPEC=$(find docs -maxdepth 1 -type d -name "20*" 2>/dev/null | sort -r | head -1)
   if [ -n "$LATEST_SPEC" ]; then
-    if [ ! -f "$LATEST_SPEC/04-code-review.md" ]; then
-      STALLED_MSG="STALLED PIPELINE DETECTED in $LATEST_SPEC. Resume the pipeline or start fresh."
+    HAS_START=false
+    HAS_REVIEW=false
+    IS_RESOLVE=false
+
+    # Check for pipeline start artifacts
+    [ -f "$LATEST_SPEC/01-brainstorm.md" ] && HAS_START=true
+    [ -f "$LATEST_SPEC/01-diagnosis.md" ] && HAS_START=true && IS_RESOLVE=true
+
+    # Check for review artifact (v2.1.0 numbering: 05-code-review.md)
+    [ -f "$LATEST_SPEC/05-code-review.md" ] && HAS_REVIEW=true
+    # Also check legacy numbering for backwards compatibility
+    [ -f "$LATEST_SPEC/04-code-review.md" ] && HAS_REVIEW=true
+
+    if [ "$HAS_START" = true ] && [ "$HAS_REVIEW" = false ]; then
+      # Check if the start artifact has status: approved (not just draft)
+      START_FILE=""
+      [ -f "$LATEST_SPEC/01-brainstorm.md" ] && START_FILE="$LATEST_SPEC/01-brainstorm.md"
+      [ -f "$LATEST_SPEC/01-diagnosis.md" ] && START_FILE="$LATEST_SPEC/01-diagnosis.md"
+
+      if [ -n "$START_FILE" ]; then
+        # Check status field — stalled if approved but no review
+        STATUS=$(grep -m1 "^status:" "$START_FILE" 2>/dev/null | sed 's/status:\s*//' | tr -d '"' | tr -d "'" | xargs)
+        if [ "$STATUS" = "approved" ] || [ "$STATUS" = "draft" ]; then
+          PIPELINE_TYPE="dev"
+          [ "$IS_RESOLVE" = true ] && PIPELINE_TYPE="resolve"
+          STALLED_MSG="STALLED PIPELINE DETECTED in $LATEST_SPEC ($PIPELINE_TYPE pipeline). Resume or start fresh."
+        fi
+      fi
     fi
   fi
 fi
 
-# Check legacy docs/spec/ location
-if [ -z "$STALLED_MSG" ] && [ -d "docs/spec" ]; then
-  LATEST_ARTIFACT=$(ls -t docs/spec/*.md 2>/dev/null | head -1)
-  if [ -n "$LATEST_ARTIFACT" ] && [ ! -f "docs/spec/04-code-review.md" ]; then
-    STALLED_MSG="STALLED PIPELINE DETECTED in docs/spec/. Resume the pipeline or start fresh."
-  fi
-fi
-
-# Build the message with optional stalled pipeline warning
+# Build output
 if [ -n "$STALLED_MSG" ]; then
-  STALLED_ESCAPED="$(python3 -c "import json; print(json.dumps('$STALLED_MSG'))")"
+  STALLED_ESCAPED="$(python3 -c "import json, sys; print(json.dumps(sys.argv[1]))" "$STALLED_MSG")"
   cat <<EOF
 {
   "priority": "IMPORTANT",
@@ -61,7 +76,6 @@ if [ -n "$STALLED_MSG" ]; then
 }
 EOF
 else
-  # Output the injection payload
   cat <<EOF
 {
   "priority": "IMPORTANT",

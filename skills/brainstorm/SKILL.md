@@ -9,15 +9,15 @@ Explore the problem space before committing to a solution. This phase produces a
 
 ## Prerequisites
 
-Phase 0 (context-loader) must have run. If no project context block is present in this conversation, invoke `Skill: development-toolkit:context-loader` NOW before proceeding. This is not optional — do not substitute ad-hoc exploration for the context-loader skill.
+Phase 0 (context-loader) must have run. If no project context block is present in this conversation, invoke `Skill: development-toolkit:context-loader` NOW before proceeding.
 
 ## Process
 
-Execute these phases in strict order. Do not skip ahead. Do not write the artifact until Phase 1.6 is complete and the user has confirmed the recommended direction.
+Execute these phases in strict order. Do not skip ahead. Do not write the artifact until Phase 1.7 is complete and the user has confirmed the recommended direction.
 
-### Phase 1.1 -- Understand the Request
+### Phase 1.1 — Understand the Request
 
-READ the user's description of what they want. Then ASK clarifying questions using the structured interview protocol below. The interview merges Socratic questioning (open-ended exploration) with structured mandatory questions (focused coverage).
+READ the user's description. Then ASK clarifying questions using the structured interview protocol below.
 
 **Mandatory questions (ALWAYS asked, one at a time, multiple-choice):**
 
@@ -28,168 +28,140 @@ READ the user's description of what they want. Then ASK clarifying questions usi
 3. **OPEN** — Anything else I should know?
    - Options: Nothing else / More context (please share) / There are constraints or gotchas
 
-**Conditional follow-up questions (asked only if mandatory answers are sparse or ambiguous):**
+**Conditional follow-up questions (asked only if mandatory answers are sparse):**
 
-4. Current state — How does it work today? (when the user's answer to WHY was vague)
-5. Success criteria — How will you know it is working? (when no measurable outcome was stated)
+4. Current state — How does it work today?
+5. Success criteria — How will you know it is working?
 
-**Completeness checklist (internal evaluation — do NOT show this to the user):**
+**Rules:**
+- ASK ONE question at a time. NEVER batch.
+- ALWAYS USE multiple-choice format with an "Other" option.
+- Maximum 5 questions total. State remaining unknowns as assumptions.
+- STOP early if answers are clear from context.
+- Mark the recommended option with `[Recommended]`.
 
-Before deciding whether to ask more questions, EVALUATE:
-- [ ] WHY — user articulated problem or motivation
-- [ ] WHO — all affected user types identified
-- [ ] Happy path — main flow described or confirmed
-- [ ] Error states — what happens when things go wrong
-- [ ] Scope boundary — what is NOT in scope
-- [ ] Assumptions — high-impact ones surfaced
+### Phase 1.2 — Explore the Problem Space
 
-SKIP further probing if all checklist dimensions are covered. CONTINUE with Socratic follow-ups only for uncovered dimensions.
+After gathering information, PRODUCE:
 
-**Rules for all questions:**
-- ASK ONE question at a time. NEVER batch multiple questions into one message.
-- ALWAYS USE multiple-choice format with an "Other" option. This reduces friction and surfaces options the user may not have considered.
-- Maximum 5 questions total (3 mandatory + up to 2 conditional or Socratic). If you still have unknowns after 5 questions, STATE them as assumptions in Phase 1.2.
-- STOP asking questions early if the answers are clear from context.
-- When presenting options, ALWAYS mark the recommended option with `[Recommended]`.
+**Problem Statement:** One paragraph. Specific, not vague. "Checkout takes 3 clicks when it should take 1" not "users are frustrated."
 
-**Do NOT ask:**
-- Implementation questions (that is Phase 2)
-- Questions you can answer by reading the codebase
-- Questions where only one reasonable answer exists
-- Open-ended questions with no options — these waste the user's time
+**Goals:** Numbered list. Each MUST be measurable or verifiable — you MUST be able to write an acceptance criterion for it.
 
-### Phase 1.2 -- Explore the Problem Space
+**Non-Goals:** Numbered list. What this effort explicitly will NOT address. Prevents scope creep.
 
-After gathering enough information, PRODUCE these sections:
+**Constraints:** Timeline, tech stack limitations, backwards compatibility requirements, deployment constraints.
 
-**Problem Statement:** One paragraph. What is the current state? What is painful or missing? Who is affected? MUST BE specific -- "users are frustrated" is too vague; "checkout takes 3 clicks when it should take 1" is specific.
-
-**Goals:** A numbered list of concrete, measurable goals. Each goal MUST be testable -- you MUST be able to write an acceptance criterion for it. Bad: "improve performance." Good: "reduce page load time below 2 seconds on 3G connections."
-
-**Non-Goals:** A numbered list of what this effort explicitly will NOT address. This is as important as the goals. It prevents scope creep and sets expectations. ALWAYS BE specific about adjacent work that might seem related but is out of scope.
-
-**Assumptions:** A numbered list of everything you are taking as given. Format:
+**Assumptions:** Numbered list with verification status:
 ```
-ASSUMPTIONS:
-1. [assumption]
-2. [assumption]
-3. [assumption]
--> Correct me now or I proceed with these.
+1. [assumption] — verified by reading code: YES/NO
+2. [assumption] — verified: YES/NO
 ```
 
-**Key Unknowns:** A list of open questions and uncertainties that could affect the direction. ALWAYS MARK which ones can be resolved now versus which ones will be resolved during implementation.
+**Key Unknowns:** Open questions. Mark which can be resolved now vs during implementation.
 
-### Phase 1.3 -- Generate Options
+### Phase 1.3 — Generate Options
 
-PRODUCE 2-3 genuinely different approaches. "Different" means they MUST represent meaningfully different trade-offs, not variations of the same idea.
+PRODUCE 2-3 genuinely different approaches. "Different" means meaningfully different trade-offs, not variations of the same idea.
 
-For each option, provide:
-- **Name:** A short, descriptive name
-- **Description:** What this approach does, in 2-3 sentences
-- **Pros:** Specific advantages (not generic "simple" or "fast")
-- **Cons:** Specific disadvantages with concrete impact
+For each option:
+- **Name, Description** (2-3 sentences)
+- **Pros, Cons** (specific, not generic)
 - **Complexity:** XS / S / M / L / XL
-- **Risk:** Low / Medium / High -- with a one-line explanation of what could go wrong
+- **Risk:** Low / Med / High (with one-line explanation)
 
-**Quality checks for options:**
-- If all options have the same pros/cons pattern, they are not different enough. RETHINK.
-- If one option is obviously superior, you have not explored the space. FIND its downside.
-- If an option has no cons, you are not being honest. Every approach has trade-offs. NEVER present an option without cons.
-- Options MUST consider the existing codebase patterns from project context. Do NOT propose approaches that conflict with established conventions unless you explicitly call out the convention break and justify it.
+**Quality checks:**
+- If all options have the same pros/cons pattern, they are not different enough.
+- If one option is obviously superior, find its downside.
+- Every option MUST have cons.
+- Options MUST consider existing codebase patterns from project context.
 
-### Phase 1.4 -- Recommend a Direction
+### Phase 1.4 — Recommend a Direction
 
 CHOOSE one option. STATE:
 1. Which option and why
-2. The key trade-off being accepted (every choice has one)
-3. Why the alternatives were not chosen (specific reasons, not "it was less good")
+2. The key trade-off being accepted
+3. Why alternatives were not chosen (specific reasons)
 
-The recommendation MUST follow logically from the goals and constraints established in Phase 1.2. If it does not, something is wrong -- REVISIT.
+The recommendation MUST follow logically from goals and constraints.
 
-### Phase 1.5 -- Assess Complexity
-
-Before self-review, CLASSIFY the task's complexity. This classification affects checkpoint placement in the pipeline.
+### Phase 1.5 — Assess Complexity
 
 | Classification | Criteria |
 |---------------|----------|
-| **LOW** | Single-pattern change, 1-3 files, follows existing pattern exactly, XS-S scope |
+| **LOW** | Single-pattern change, 1-3 files, follows existing pattern, XS-S scope |
 | **MEDIUM** | 3-10 files, new component or feature slice, M scope |
-| **HIGH** | 10+ files, new architectural pattern, cross-cutting concern, external integration, L scope that was decomposed |
+| **HIGH** | 10+ files, new architectural pattern, cross-cutting concern, L+ scope |
 
-Set the `complexity` field in the brainstorm artifact frontmatter.
-
-After determining complexity, PRESENT the checkpoint strategy to the user:
-
+Present checkpoint strategy to user:
 ```
 Complexity assessed as: **[LOW / MEDIUM / HIGH]**
 Recommended checkpoint strategy:
-  A) Low: single gate after Revision [Recommended for LOW complexity]
-  B) Medium: gate after Planning and after Revision [Recommended for MEDIUM complexity]
-  C) High: gate after Brainstorm, after Planning, and after Revision [Recommended for HIGH complexity]
-
-Which strategy would you like to use? (A, B, or C)
+  A) Low: single gate after Revision [Recommended for LOW]
+  B) Medium: gate after Planning and after Revision [Recommended for MEDIUM]
+  C) High: gate after Brainstorm, after Planning, and after Revision [Recommended for HIGH]
 ```
 
-WAIT for user confirmation before proceeding. DO NOT continue without explicit user confirmation. The chosen strategy is recorded in the brainstorm artifact and the pipeline orchestrator uses it to determine gate placement.
+WAIT for user confirmation.
 
-### Phase 1.6 -- Self-Review
+### Phase 1.6 — Self-Review
 
-Before writing the artifact, VERIFY every item below:
+Before writing the artifact, verify EVERY item:
 
-- [ ] No placeholder text or "[TBD]" markers anywhere
+- [ ] Problem statement exists and is specific — not vague or aspirational
+- [ ] Goals are measurable or verifiable — each has a way to confirm it's met
+- [ ] Non-goals are genuine exclusions — not goals in disguise
+- [ ] Constraints are stated — timeline, tech stack, compatibility
+- [ ] Infrastructure assumptions are verified — any claim about existing code confirmed by reading the codebase
+- [ ] Options are genuinely distinct — not three variations of the same approach
+- [ ] Recommended direction is justified — rationale references specific pros/cons, not just "feels right"
+- [ ] No placeholder text or "[TBD]" markers
 - [ ] No contradictions between goals and non-goals
-- [ ] All assumptions are stated explicitly, not buried in prose
-- [ ] Scope check: is this trying to do too much for a single iteration?
-- [ ] Problem statement is specific, not vague
-- [ ] Goals are measurable, not aspirational
-- [ ] Options are genuinely different, not variations of one idea
-- [ ] Recommendation follows from stated goals and constraints
-- [ ] Non-goals actually prevent likely scope creep scenarios
-- [ ] Complexity estimates are honest, not sandbagged to favor the preferred option
+- [ ] Scope is appropriate for a single iteration
 
-If any check fails, FIX it before proceeding. DO NOT proceed with failing checks.
+If any check fails, FIX it before proceeding.
 
-### Phase 1.7 -- Write Artifact
+### Phase 1.7 — Visual Companion Offer
 
-**HARD GATE: Do NOT write the brainstorm file until ALL exploration phases (1.1-1.6) are complete and the user has confirmed the recommended direction.**
+If the topic has spatial or systemic structure (UI layouts, data flows, component hierarchies, state machines, architecture diagrams), ASK the user:
 
-The document MUST reflect genuine exploration -- not a rubber-stamp of the first idea that came to mind. If your brainstorm has only one real option and two filler options, you have failed.
+```
+This topic has [spatial/systemic] structure that might benefit from a visual diagram.
+Would you like me to create a diagram to complement the brainstorm document?
+  A) Yes — create a [type] diagram
+  B) No — the text document is sufficient [Recommended if structure is simple]
+```
 
-If the user says "just do it" or "skip the brainstorm," EXPLAIN that the brainstorm prevents wasted implementation effort and ASK them to confirm. If they confirm, SKIP it -- but NOTE in subsequent phases that no brainstorm was conducted.
+If the user accepts, create the diagram as part of the brainstorm artifact (inline Mermaid or ASCII art in the document).
+
+### Phase 1.8 — Write Artifact
+
+**HARD GATE: Do NOT write the brainstorm file until ALL phases (1.1-1.7) are complete and the user has confirmed the recommended direction.**
 
 Steps:
-1. CREATE a per-session spec directory under `docs/` using the convention: `docs/YYYY-MM-DD-short-description-of-topic/` (e.g., `docs/2026-04-08-user-auth-flow/`). USE today's date and a kebab-case short description derived from the topic.
-2. WRITE `01-brainstorm.md` inside that directory using the template from `templates/01-brainstorm.md`
-3. SET the `status` field in frontmatter to `draft`
-4. SET the `complexity` field in frontmatter to the classification from Phase 1.5
-5. FILL IN the `date` field with today's date
-6. REPLACE all `{{placeholder}}` tokens with actual content from phases 1.1-1.4
+1. CREATE spec directory: `docs/YYYY-MM-DD-short-description/` (today's date, kebab-case)
+2. WRITE `01-brainstorm.md` using the template from `templates/01-brainstorm.md`
+3. SET frontmatter: `status: draft`, `complexity`, `date`, `audience: "Technical team (developer or team members)"`
+4. REPLACE all `{{placeholder}}` tokens with actual content
 
-The artifact MUST be complete — no placeholders, no TODOs, no "see above." It MUST be a standalone document that another agent could read without any conversation context.
+The artifact MUST be complete — no placeholders, no TODOs. It MUST be a standalone document readable without conversation context.
 
 ## Anti-Patterns
 
-These are the ways brainstorming fails. RECOGNIZE them and STOP.
-
 ### "This is too simple for brainstorming"
-If it touches more than one file, it is not simple. If it involves a decision between approaches, it is not simple. If another developer might have done it differently, it is not simple. Brainstorm it.
+If it touches more than one file or involves a decision between approaches, brainstorm it.
 
 ### "I already know the right approach"
-SURFACE it as an assumption. The brainstorm validates assumptions -- that is its job. If you are right, the brainstorm will be fast. If you are wrong, you just saved hours of rework.
+Surface it as an assumption. The brainstorm validates assumptions.
 
 ### "The user seems impatient"
-Fast bad decisions cost more than slow good ones. A 10-minute brainstorm that prevents 2 hours of rework is a bargain. NEVER let perceived time pressure skip quality gates.
+A 10-minute brainstorm that prevents 2 hours of rework is a bargain.
 
 ### "Let me just start coding"
-Code without a brainstorm is gambling. You might get lucky. You probably will not. The brainstorm exists to make the plan possible and the plan exists to make the code correct. ALWAYS brainstorm.
-
-### "The existing code makes the approach obvious"
-The existing code constrains the solution space. It does not decide the solution. There are ALWAYS alternatives within those constraints. EXPLORE them.
-
-See `references/anti-patterns.md` for detailed examples of each failure mode.
+Code without a brainstorm is gambling.
 
 ## Transition
 
 WHEN this skill completes:
-- IF running inside a pipeline: RETURN control to the pipeline orchestrator. DO NOT invoke the next skill yourself. DO NOT ask the user what to do next.
-- IF running standalone: PRESENT the brainstorm artifact to the user. INFORM them: "Brainstorm complete. Invoke `development-toolkit:plan` when ready to create the implementation plan."
+- IF running inside a pipeline: RETURN control to the pipeline orchestrator.
+- IF running standalone: INFORM the user: "Brainstorm complete. Invoke `development-toolkit:plan` when ready to create the implementation plan."

@@ -8,25 +8,18 @@ origin: "{{spec_dir}}/01-brainstorm.md"
 
 # Implementation Plan: {{topic}}
 
-## Technical Architecture
+## Key Decisions
 
-### Design Decisions
-
-1. **{{Decision}}** — {{Rationale}}
-2. **{{Decision}}** — {{Rationale}}
-3. **{{Decision}}** — {{Rationale}}
-
-### Component Diagram
-
-```
-{{ASCII or Mermaid diagram showing component relationships}}
-```
+1. **{{Decision}}** — {{Rationale referencing brainstorm goals/constraints}}
+2. **{{Decision}}** — {{Rationale referencing brainstorm goals/constraints}}
+3. **{{Decision}}** — {{Rationale referencing brainstorm goals/constraints}}
 
 ## Implementation Steps
 
 ### Step 1: {{Title}} [SEQUENTIAL]
 
 - **Files:** `{{path/to/file}}`
+- **Test files:** `{{path/to/test-file}}`
 - **Dependencies:** None
 - **Acceptance Criteria:**
   - [ ] {{Specific, testable criterion}}
@@ -37,6 +30,7 @@ origin: "{{spec_dir}}/01-brainstorm.md"
 ### Step 2: {{Title}} [PARALLEL]
 
 - **Files:** `{{path/to/file}}`, `{{path/to/file}}`
+- **Test files:** `{{path/to/test-file}}`
 - **Dependencies:** Step 1
 - **Acceptance Criteria:**
   - [ ] {{Specific, testable criterion}}
@@ -47,6 +41,7 @@ origin: "{{spec_dir}}/01-brainstorm.md"
 ### Step 3: {{Title}} [PARALLEL]
 
 - **Files:** `{{path/to/file}}`
+- **Test files:** `{{path/to/test-file}}`
 - **Dependencies:** Step 1
 - **Acceptance Criteria:**
   - [ ] {{Specific, testable criterion}}
@@ -57,6 +52,7 @@ origin: "{{spec_dir}}/01-brainstorm.md"
 ### Step 4: {{Title}} [SEQUENTIAL]
 
 - **Files:** `{{path/to/file}}`
+- **Test files:** `{{path/to/test-file}}`
 - **Dependencies:** Steps 2, 3
 - **Acceptance Criteria:**
   - [ ] {{Specific, testable criterion}}
@@ -66,11 +62,11 @@ origin: "{{spec_dir}}/01-brainstorm.md"
 
 ## Execution Waves
 
-| Wave | Steps   | Mode       | Rationale                                    |
-|------|---------|------------|----------------------------------------------|
-| 1    | Step 1  | SEQUENTIAL | {{Why this must go first}}                   |
-| 2    | Steps 2, 3 | PARALLEL | {{Why these can run concurrently}}          |
-| 3    | Step 4  | SEQUENTIAL | {{Why this depends on wave 2 completing}}    |
+| Wave | Steps      | Mode       | Rationale                                 |
+|------|------------|------------|-------------------------------------------|
+| 1    | Step 1     | SEQUENTIAL | {{Why this must go first}}                |
+| 2    | Steps 2, 3 | PARALLEL  | {{Why these can run concurrently}}        |
+| 3    | Step 4     | SEQUENTIAL | {{Why this depends on wave 2 completing}} |
 
 ## Test Strategy
 
@@ -92,9 +88,11 @@ origin: "{{spec_dir}}/01-brainstorm.md"
 |-----------------------------|------------|-----------------------------------------|
 | {{Risk description}}        | {{H/M/L}}  | {{How to prevent or handle it}}        |
 | {{Risk description}}        | {{H/M/L}}  | {{How to prevent or handle it}}        |
-| {{Risk description}}        | {{H/M/L}}  | {{How to prevent or handle it}}        |
 
 ## Open Questions Deferred
 
 1. {{Question that does not block implementation but needs future resolution}}
-2. {{Question deferred to a follow-up iteration}}
+
+## Changelog
+
+{{This section is appended by the revision phase. Do not fill manually.}}

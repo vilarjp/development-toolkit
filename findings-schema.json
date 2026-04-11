@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Reviewer Output",
+  "description": "Structured output contract between reviewer agents and the code-review orchestrator. Each reviewer returns one object matching this schema.",
+  "type": "object",
+  "required": ["reviewer", "findings", "residual_risks", "testing_gaps"],
+  "properties": {
+    "reviewer": {
+      "type": "string",
+      "description": "Agent name (e.g. code-quality-reviewer, security-reviewer)"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "title",
+          "severity",
+          "file",
+          "line",
+          "impact",
+          "autofix",
+          "confidence",
+          "evidence",
+          "pre_existing",
+          "suggested_fix",
+          "needs_verification"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Concise finding title — what is wrong, not why"
+          },
+          "severity": {
+            "enum": ["P0", "P1", "P2", "P3"],
+            "description": "P0=critical (data loss, security, crash), P1=high (normal-path defect), P2=moderate (edge case, perf, maintainability), P3=low (style, minor improvement)"
+          },
+          "file": {
+            "type": "string",
+            "description": "Repo-relative path (e.g. src/services/shippingService.ts)"
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Line number where the issue occurs"
+          },
+          "impact": {
+            "type": "string",
+            "description": "Why this matters — describe the failure mode, not the symptom"
+          },
+          "autofix": {
+            "enum": ["safe_auto", "gated_auto", "manual", "advisory"],
+            "description": "safe_auto=deterministic fix no behavior change, gated_auto=concrete fix changes behavior/contracts, manual=requires design decisions, advisory=report only"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "0.0-1.0. Suppress below 0.60 except P0 at 0.50+. See confidence calibration in agent definition."
+          },
+          "evidence": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1,
+            "description": "Code-grounded proof: snippets, patterns, line references. Every finding must have at least one."
+          },
+          "pre_existing": {
+            "type": "boolean",
+            "description": "True if the issue exists in unchanged code unrelated to the current diff"
+          },
+          "suggested_fix": {
+            "type": ["string", "null"],
+            "description": "Concrete minimal fix, or null if no good fix is obvious. A bad suggestion is worse than null."
+          },
+          "needs_verification": {
+            "type": "boolean",
+            "description": "True if the fix should be followed by a targeted test run"
+          }
+        }
+      }
+    },
+    "residual_risks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Risks that cannot be fully resolved by code changes alone"
+    },
+    "testing_gaps": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Areas where test coverage is insufficient"
+    }
+  },
+  "additionalProperties": false,
+  "_orchestrator_fields": {
+    "description": "Fields added by the code-review orchestrator during merge/dedup — NOT produced by individual reviewers",
+    "fields": {
+      "id": "Fingerprint: normalize(file) + line_bucket(line, +-3) + normalize(title)",
+      "reviewers": "All reviewer names that flagged this finding (after dedup merge)",
+      "reviewer_agreement": "Count of independent reviewers who flagged this finding",
+      "original_confidence": "Confidence before cross-reviewer boost"
+    }
+  }
+}
