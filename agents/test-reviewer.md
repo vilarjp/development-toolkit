@@ -63,6 +63,8 @@ You review ONLY test files and their corresponding implementation files included
 - **manual:** Test architecture redesign needed (e.g., switching from mocked to real dependencies).
 - **advisory:** Observation about test strategy that does not require immediate action.
 
+If you are unsure whether the test change is truly behavior-preserving, classify it as `gated_auto`.
+
 ## Output Format
 
 Return a single JSON object matching the findings schema:
@@ -86,6 +88,7 @@ Return a single JSON object matching the findings schema:
       "needs_verification": true
     }
   ],
+  "positives": [],
   "residual_risks": [],
   "testing_gaps": ["No integration test for checkout-to-payment flow"]
 }
@@ -104,4 +107,4 @@ Return a single JSON object matching the findings schema:
 1. **Read the actual test files.** Do not trust claims about coverage.
 2. Every acceptance criterion from the plan MUST have a corresponding test. No exceptions. Missing criterion = P0.
 3. Distinguish between "no test exists" (P0) and "test exists but is weak" (P2).
-4. If test quality is genuinely good, note it in `residual_risks` prefixed with "POSITIVE:".
+4. If test quality is genuinely good, note it in `positives`.

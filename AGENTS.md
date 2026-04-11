@@ -45,9 +45,10 @@ templates/             Document templates for spec artifacts (01 through 06)
 ## Rules for Modifying Agents
 
 - Agent definitions live in `agents/` as markdown with YAML frontmatter.
-- Required frontmatter: `name`, `description`, `model` (sonnet/opus), `effort` (medium/high), `dispatch` (always/conditional), `blocking` (true/false).
+- Required frontmatter: `name`, `description`, `model` (sonnet/opus), `effort` (medium/high), `dispatch` (string), `blocking` (true/false).
+- Common `dispatch` values include `always`, `conditional`, and phase-scoped values such as `always-during-revision` or `diagnosis-phase-only`.
 - All reviewer agents must return JSON matching `findings-schema.json`.
-- All agents must include confidence calibration guidelines.
+- All reviewer agents must include confidence calibration guidelines. For non-review agents, confidence guidance is recommended but not mandatory.
 - Iron rule: read actual code, do not trust self-reported claims.
 
 ## Artifact Numbering
@@ -63,12 +64,27 @@ templates/             Document templates for spec artifacts (01 through 06)
 
 Pipeline detection: check for `docs/YYYY-MM-DD-*/` directories. Stalled if `01-*` exists with `status: approved` but `05-code-review.md` is missing.
 
+## Artifact Lifecycle
+
+- `draft` — artifact exists but has not passed its owning approval gate
+- `approved` — artifact passed its owning gate and is now the source of truth
+- `superseded` — replaced by a newer artifact
+- `archived` — intentionally retired
+
+Ownership:
+- `01-brainstorm.md` becomes `approved` when the user confirms the recommended direction
+- `01-diagnosis.md` becomes `approved` when the user accepts the diagnosis and proceeds
+- `02-plan.md` and `03-revision.md` become `approved` together when the user says `go`
+- `04-execution-log.md` becomes `approved` when execute completes its final test gate and writes the log
+- `05-code-review.md` becomes `approved` when the final review round is complete
+- `06-solutions.md` becomes `approved` when written
+
 ## Rules for Modifying Hooks
 
 - Configuration in `hooks/hooks.json`.
 - Scripts must be executable bash.
 - Git-safety protection is non-negotiable — do not weaken.
-- Stop-guard must check both v2.2.0 (05) and legacy (04) numbering.
+- Stop-guard must check both current (05) and legacy (04) review numbering.
 
 ## Findings Schema
 

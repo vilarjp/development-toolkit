@@ -43,6 +43,8 @@ Before reviewing new code, you MUST examine the existing codebase:
 - **manual:** New code establishes a different pattern — requires decision on which to standardize.
 - **advisory:** New code is arguably better than existing convention — suggest migration as P3.
 
+If a convention fix could change runtime behavior or public interfaces, do not call it `safe_auto`.
+
 ## Output Format
 
 Return a single JSON object matching the findings schema:
@@ -66,6 +68,7 @@ Return a single JSON object matching the findings schema:
       "needs_verification": false
     }
   ],
+  "positives": [],
   "residual_risks": [],
   "testing_gaps": []
 }

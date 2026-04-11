@@ -5,7 +5,7 @@ description: Use when code is reviewed and ready to commit.
 
 # Commit and Push (Final Phase)
 
-Safely commit and push code changes with proper git hygiene. This phase enforces one absolute rule: NEVER commit or push directly to master or main.
+Safely commit and push code changes with proper git hygiene. This phase enforces one absolute rule: NEVER commit or push directly to a protected branch such as `main`, `master`, `production`, `prod`, `stable`, `live`, or `trunk`.
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ DERIVE the suggestion from spec artifacts:
 3. DETERMINE prefix: `feat/`, `fix/`, `chore/`, `refactor/`, `docs/`, `test/`.
 
 **After receiving the branch name:**
-1. If `master` or `main`: REFUSE. Ask for a different name.
+1. If the requested branch name is a protected branch name (for example `main`, `master`, `production`, `prod`, `stable`, `live`, `trunk`): REFUSE. Ask for a different name.
 2. If exists remotely: checkout and pull.
 3. If new: create locally with `git checkout -b <branch-name>`.
 
@@ -153,7 +153,7 @@ If pushing to create a PR, generate the PR description from spec artifacts:
 
 ## ABSOLUTE RULES
 
-1. **NEVER commit to master or main.** No exceptions.
+1. **NEVER commit to a protected branch.** No exceptions. Protected branch names include `main`, `master`, `production`, `prod`, `stable`, `live`, and `trunk`.
 2. **NEVER `git push --force` without explicit human approval.** Use `--force-with-lease` if approved.
 3. **NEVER `--no-verify`.** Fix the underlying issue.
 4. **NEVER `git add -A` or `git add .`.** Stage specific files by name.
@@ -164,14 +164,14 @@ If pushing to create a PR, generate the PR description from spec artifacts:
 
 | Excuse | Reality |
 |--------|---------|
-| "I'll push to main just this once, it's a small fix" | There is no exception. Create a branch. The hook will block you anyway. |
+| "I'll push to a protected branch just this once, it's a small fix" | There is no exception. Create a branch. The hook will block you anyway. |
 | "Tests passed earlier, no need to re-run" | State changes between runs. Re-run. The pre-commit gate exists for a reason. |
 | "Lint warnings are fine, only errors matter" | Check the project config. Some projects treat warnings as errors. Run the linter. |
 | "I'll write the PR description later" | The spec artifacts exist now. The PR description takes 2 minutes. Later means never. |
 
 ## Red Flags — Self-Check
 
-- You are on the main or master branch
+- You are on a protected branch (`main`, `master`, `production`, `prod`, `stable`, `live`, `trunk`)
 - You used `git add -A` or `git add .` instead of staging specific files
 - You skipped the pre-commit verification gate (tests, lint, secrets)
 - You committed without a conventional commit message
@@ -180,9 +180,9 @@ If pushing to create a PR, generate the PR description from spec artifacts:
 
 ## Error Recovery
 
-**Commit to main by mistake:**
+**Commit to a protected branch by mistake:**
 1. Do not push. Create branch: `git checkout -b <type>/<topic>`
-2. Reset main: `git branch -f main origin/main`
+2. Reset the protected branch to its remote tracking branch before continuing
 3. Push the feature branch.
 
 **Secrets staged:**

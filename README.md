@@ -1,215 +1,172 @@
 # development-toolkit
 
-A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that enforces spec-driven development through structured pipelines.
+Spec-driven development scaffolding for Claude Code.
 
-Three tiers serve different work types. The **dev pipeline** runs exploration, planning, TDD implementation, and multi-axis code review with structured findings before it reaches a commit. The **resolve pipeline** runs structured diagnosis, prove-it TDD, and code review for bug fixes. The **trivial pipeline** goes straight to TDD and commit for small, isolated changes. Human approval gates ensure nothing ships without your sign-off.
+This repo is not an app or framework. It is a toolkit of:
 
-## Prerequisites
+- skills
+- agent definitions
+- artifact templates
+- Claude hook configuration
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and authenticated
+Its job is to make agent-driven work more disciplined: clearer scope, explicit specs, tighter TDD, structured review, and fewer invented assumptions.
+
+## What It Does
+
+The toolkit organizes work into three paths:
+
+- **Dev**: feature or architectural change
+- **Resolve**: bug or regression investigation and fix
+- **Trivial**: small isolated change
+
+The heavier paths produce explicit artifacts under `docs/YYYY-MM-DD-topic/`:
+
+1. `01-brainstorm.md` or `01-diagnosis.md`
+2. `02-plan.md`
+3. `03-revision.md`
+4. `04-execution-log.md`
+5. `05-code-review.md`
+6. `06-solutions.md`
+
+The aim is simple: make the agent show its work before, during, and after implementation.
+
+## What A Raw Checkout Provides
+
+A raw checkout of this repo currently ships:
+
+- skills under [skills/](/Users/joao/dev/development-toolkit/skills)
+- agent definitions under [agents/](/Users/joao/dev/development-toolkit/agents)
+- templates under [templates/](/Users/joao/dev/development-toolkit/templates)
+- hook configuration under [hooks/](/Users/joao/dev/development-toolkit/hooks)
+
+It does **not** currently ship repo-local slash-command wrapper files for things like `/dev`, `/resolve`, or `/quick`.
+
+In practice, that means:
+
+- the toolkit can still work from a raw checkout
+- the session-start meta-skill can still route work
+- you can invoke the underlying skills directly
+- you should not assume slash commands exist unless your Claude packaging layer adds them
 
 ## Installation
 
-### Option 1: Shell alias (recommended)
+### Option 1: Shell Alias
 
 ```bash
 git clone https://github.com/vilarjp/development-toolkit.git ~/development-toolkit
 ```
 
-Add to your `~/.zshrc` (or `~/.bashrc`):
+Add to your shell config:
 
 ```bash
 alias claude='claude --plugin-dir ~/development-toolkit'
 ```
 
-Reload: `source ~/.zshrc`
+Reload your shell:
 
-### Option 2: One-off loading
+```bash
+source ~/.zshrc
+```
+
+### Option 2: One-Off Loading
 
 ```bash
 claude --plugin-dir /path/to/development-toolkit
 ```
 
-## Quick Start
+## How To Use It
 
-```
-/dev add user authentication with JWT tokens    # Full feature pipeline
-/resolve fix the race condition in payment       # Bug fix pipeline
-/quick fix the typo in the shipping label        # Trivial pipeline
+The normal entrypoint is the meta-skill in [skills/using-toolkit/SKILL.md](/Users/joao/dev/development-toolkit/skills/using-toolkit/SKILL.md). It classifies the task and routes to the right pipeline.
 
-# Individual phases
-/brainstorm    /diagnose    /plan    /revise
-/execute       /review      /commit  /pr-feedback
-```
+The main skills are:
 
-## Pipelines
+- `using-toolkit`
+- `context-loader`
+- `brainstorm`
+- `diagnosis`
+- `plan`
+- `revision`
+- `execute`
+- `code-review`
+- `fix-loop`
+- `commit-push`
+- `pr-feedback`
+- `solutions`
 
-### Dev Pipeline (`/dev`)
+If your Claude environment exposes a separate command layer, it can map friendly commands onto these skills. This repo itself currently documents the skills as the source of truth.
 
-```
-Context -> Brainstorm -> Plan -> Revision -> [APPROVAL] -> Execute -> [TESTS] -> Review -> Fix Loop -> Commit -> Solutions
-```
+## Pipeline Summary
 
-| Phase | Artifact | What Happens |
-|-------|----------|--------------|
-| 0 | (in-memory) | Scans project structure, config, conventions |
-| 1 | `01-brainstorm.md` | Socratic exploration + self-review + visual companion offer |
-| 2 | `02-plan.md` | Research sub-agents + architecture + confidence check + mandatory test paths |
-| 3 | `03-revision.md` | Cross-check + scope creep detection + adversarial review + plan update |
-| | | **Human approval gate** |
-| 4 | `04-execution-log.md` | Parallel subagents, TDD, incremental commits per wave |
-| | | **Test gate** |
-| 5 | `05-code-review.md` | Two-stage review (spec compliance gate, then code quality), structured JSON findings, confidence gating, dedup |
-| 5.5 | (appended to 05) | Auto-fix safe_auto, human triage, bounded re-review (max 3 rounds) |
-| 6 | git history | Conventional commits, lint gate, PR description |
-| 7 | `06-solutions.md` | Problem summary, approach, key decisions, gotchas |
+### Dev
 
-### Resolve Pipeline (`/resolve`)
+`Context -> Brainstorm -> Plan -> Revision -> Approval -> Execute -> Review -> Fix Loop -> Commit -> Solutions`
 
-| Phase | Artifact | What Happens |
-|-------|----------|--------------|
-| 0 | (in-memory) | Context scan |
-| 1R | `01-diagnosis.md` | Opus/high investigator: root-cause tracing, hypothesis testing |
-| | | **Human approval gate** |
-| 4 | `04-execution-log.md` | Prove-it TDD: reproduction test first, then minimal fix |
-| | | **Test gate** |
-| 5 | `05-code-review.md` | Same review system as dev pipeline |
-| 5.5 | (appended to 05) | Fix loop |
-| 6 | git history | Commit and push |
-| 7 | `06-solutions.md` | Learnings capture |
+Use when the work changes behavior or architecture and needs explicit planning.
 
-### Trivial Pipeline (`/quick`)
+### Resolve
 
-```
-TDD/Verification -> Lint check -> Commit
-```
+`Context -> Diagnosis -> Approval -> Execute minimal root-cause fix -> Review -> Fix Loop -> Commit -> Solutions`
 
-No spec directory. No artifacts. Agent assesses, user confirms.
+Use when the work is a bug or regression. This path is diagnosis-driven, not plan-driven.
 
-## Structured Code Review
+### Trivial
 
-The review system uses structured JSON findings with a full processing pipeline:
+`TDD/Verification -> Lint -> Commit`
 
-### Findings Schema
+Use when the change is genuinely small and isolated.
 
-Every reviewer returns JSON with fields: `title`, `severity` (P0-P3), `file`, `line`, `impact`, `intent` (file/line-independent description), `autofix` (safe_auto/gated_auto/manual/advisory), `confidence` (0.0-1.0), `evidence[]`, `pre_existing`, `suggested_fix`, `needs_verification`.
+## Review Model
 
-### Confidence Gating
+The strongest part of the toolkit is the review path:
 
-| Tier | Range | Action |
-|------|-------|--------|
-| Suppress | Below 0.60 | Dropped (except P0 at 0.50+) |
-| Flag | 0.60-0.69 | Include only when clearly actionable |
-| Confident | 0.70-0.84 | Real and important |
-| Certain | 0.85-1.00 | Verifiable from code alone |
+- reviewer agents return structured JSON
+- findings are confidence-gated
+- duplicate findings are merged
+- only clearly behavior-preserving `safe_auto` fixes may apply automatically
+- everything else goes through human triage and bounded re-review
 
-Cross-reviewer agreement boosts confidence by +0.10 per additional reviewer (cap 1.0).
+Core contract: [findings-schema.json](/Users/joao/dev/development-toolkit/findings-schema.json)
 
-### Fix Loop
+Primary review orchestrator: [skills/code-review/SKILL.md](/Users/joao/dev/development-toolkit/skills/code-review/SKILL.md)
 
-After review: safe_auto fixes applied automatically, gated_auto/manual presented for human triage, approved fixes via TDD, bounded re-review (max 3 rounds).
+## Hooks
 
-## Agents
+The hooks enforce the operational guardrails:
 
-### Reviewer Agents (Phase 5)
+- [hooks/session-start.sh](/Users/joao/dev/development-toolkit/hooks/session-start.sh): injects the meta-skill and detects stalled approved specs
+- [hooks/git-safety.sh](/Users/joao/dev/development-toolkit/hooks/git-safety.sh): blocks protected-branch git writes
+- [hooks/stop-guard.sh](/Users/joao/dev/development-toolkit/hooks/stop-guard.sh): blocks stopping during active approved pipelines or with reviewed-but-uncommitted work
 
-| Agent | Dispatch | Blocking | Model |
-|-------|----------|----------|-------|
-| code-quality-reviewer | Always | Yes | Sonnet/medium |
-| test-reviewer | Always | Yes | Sonnet/medium |
-| plan-alignment-reviewer | Conditional: plan exists | Yes | Sonnet/medium |
-| security-reviewer | Conditional: auth/input/API/payment/data | Yes | Sonnet/medium |
-| convention-reviewer | Conditional: area has 3+ files | No | Sonnet/medium |
+Hook config lives in [hooks/hooks.json](/Users/joao/dev/development-toolkit/hooks/hooks.json).
 
-### Adversarial Agent (Phase 3)
+## Repo Layout
 
-| Agent | Dispatch | Model |
-|-------|----------|-------|
-| adversarial-reviewer | Always during revision | Sonnet/medium |
-
-### Investigation Agent
-
-| Agent | Dispatch | Model |
-|-------|----------|-------|
-| resolve-investigator | Diagnosis phase | Opus/high |
-
-### Research Agents (Phase 2)
-
-| Agent | Dispatch | Model |
-|-------|----------|-------|
-| Repo patterns | Always during planning | Opus/high |
-| Solutions history | Always during planning | Opus/high |
-| Ecosystem practices | Conditional: new lib/security area | Opus/high |
-
-## Model Tiering
-
-| Phase | Sub-agent Model | Effort |
-|-------|----------------|--------|
-| Diagnosis | Latest Opus | High |
-| Plan (research + confidence) | Latest Opus | High |
-| Execute (wave agents) | Latest Sonnet | Medium |
-| Code Review (reviewers) | Latest Sonnet | Medium |
-| Fix Loop (re-review) | Latest Sonnet | Medium |
-| PR Feedback (fixers) | Latest Sonnet | Medium |
-
-Orchestrator always runs on the user's configured model.
-
-## Operating Behaviors
-
-**Always-on:** Enforce Simplicity, Verify Don't Assume, Maintain Scope Discipline, Surface Assumptions, Manage Confusion Actively.
-
-**Phase-injected:** Push Back When Warranted (brainstorm + planning), Seek Forgiveness Strategically (execution).
-
-## Git Safety
-
-- Never commits to master/main (enforced by PreToolUse hook)
-- Conventional Commits format
-- Lint gate before every commit
-- Logical commit splitting
-- Rebase before push
-
-## Project Structure
-
-```
+```text
 development-toolkit/
-  findings-schema.json              # Structured output contract for reviewers
+  findings-schema.json
   hooks/
-    hooks.json                      # Hook configuration
-    session-start.sh                # Meta-skill injection + stalled pipeline detection
-    git-safety.sh                   # Blocks writes to master/main
-    stop-guard.sh                   # Blocks stop during active pipelines
   skills/
-    using-toolkit/SKILL.md          # Meta-skill: tier classification + operating behaviors
-    context-loader/SKILL.md         # Phase 0: project scanning
-    brainstorm/SKILL.md             # Phase 1: Socratic exploration + self-review + council debate
-      references/council-debate.md  # Multi-perspective debate protocol for architectural decisions
-    diagnosis/SKILL.md              # Phase 1R: structured bug investigation
-    plan/SKILL.md                   # Phase 2: research + architecture + confidence check
-    revision/SKILL.md               # Phase 3: cross-check + scope creep + plan update
-    execute/SKILL.md                # Phase 4: TDD + incremental commits + execution log
-    tdd/SKILL.md                    # Cross-cutting: RED-GREEN-REFACTOR + verification mode
-    code-review/SKILL.md            # Phase 5: structured findings + conditional reviewers
-    fix-loop/SKILL.md               # Phase 5.5: autofix routing + bounded re-review
-    commit-push/SKILL.md            # Phase 6: lint gate + PR description
-    pr-feedback/SKILL.md            # Post-pipeline: PR thread resolution
-    solutions/SKILL.md              # Phase 7: learnings capture
   agents/
-    code-quality-reviewer.md        # Always-on, blocking
-    test-reviewer.md                # Always-on, blocking
-    plan-alignment-reviewer.md      # Conditional, blocking
-    security-reviewer.md            # Conditional, blocking
-    convention-reviewer.md          # Conditional, non-blocking
-    adversarial-reviewer.md         # Revision phase: stress-tests premises and assumptions
-    resolve-investigator.md         # Diagnosis phase only
   templates/
-    01-brainstorm.md
-    01-diagnosis.md
-    02-plan.md
-    03-revision.md
-    04-execution-log.md
-    05-code-review.md
-    06-solutions.md
 ```
+
+If you are editing the toolkit itself, start with [AGENTS.md](/Users/joao/dev/development-toolkit/AGENTS.md).
+
+## Current Scope
+
+This repo is intentionally narrow.
+
+It is trying to be:
+
+- a disciplined spec-driven workflow toolkit
+- a review and guardrail layer for Claude Code
+- a source of reusable skills, agents, and templates
+
+It is not currently trying to be:
+
+- a cross-platform multi-agent distribution system
+- a packaged slash-command product with built-in command wrappers
+- a generic skill marketplace
 
 ## License
 

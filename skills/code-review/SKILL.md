@@ -110,7 +110,7 @@ Confidence tiers:
 
 **Step 6: Sort.** Severity (P0 first) → confidence (desc) → file path → line.
 
-**Step 7: Collect metadata.** Union all `residual_risks` and `testing_gaps` from all reviewers.
+**Step 7: Collect metadata.** Union all `positives`, `residual_risks`, and `testing_gaps` from all reviewers.
 
 ### Phase 5.6 — Write Review Artifact
 
@@ -121,11 +121,12 @@ WRITE `05-code-review.md` using `templates/05-code-review.md`:
 - Reviewer Scope table
 - Round 1 findings: tables grouped by severity (P0, P1, P2, P3)
 - Pre-existing issues: separate table
-- What's Done Well: positive observations from reviewers
+- What's Done Well: merged `positives` from reviewers
 - Residual Risks and Testing Gaps
 - Verdict: APPROVED (0 P0 from blocking reviewers) or REQUIRES CHANGES
 
 Store the raw JSON findings alongside the markdown for the fix-loop to parse.
+Write the artifact with `status: draft` while review is still in progress.
 
 ### Phase 5.7 — Present Verdict
 
@@ -154,6 +155,8 @@ Proceed to commit, or address P1 issues first?
   B) Fix P1s first (enter fix loop)
 ```
 
+If the review is final for this round and no fix-loop will run immediately, update `05-code-review.md` frontmatter from `status: draft` to `status: approved` before returning control.
+
 ## Rules
 
 - Reviewers MUST read actual code. No trusting self-reported claims.
@@ -179,7 +182,7 @@ Proceed to commit, or address P1 issues first?
 - You dispatched Stage 2 reviewers before Stage 1 completed
 - You suppressed a P0 finding below the confidence threshold
 - You fabricated findings to fill a quota (empty findings are valid)
-- The review document has no "What's Done Well" section (reviewers should note positives too)
+- The review document has no "What's Done Well" section, even though reviewers returned positives
 
 ## Transition
 

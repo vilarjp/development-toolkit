@@ -65,6 +65,12 @@ Present the diagnosis summary:
 - Hotspots (file:line list)
 - Path to diagnosis document
 
+If the user approves proceeding with this diagnosis:
+1. UPDATE `01-diagnosis.md` frontmatter from `status: draft` to `status: approved`
+2. Treat the approved diagnosis as the source of truth for resolve execution
+
+If the user wants changes, keep the artifact in `draft`.
+
 ## Rules
 
 1. **No fixes without root-cause investigation.** Symptom fixes are failure.

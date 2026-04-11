@@ -29,7 +29,7 @@ The agent assesses the tier, then confirms with the user:
 This looks like a [trivial fix / bug fix / feature]. I'll use the [trivial / resolve / dev] pipeline.
 
 [For trivial]: Straight to TDD → Commit. No brainstorm, no plan, no review.
-[For resolve]: Diagnosis → Fix → Review → Commit.
+[For resolve]: Diagnosis → Execute the minimal root-cause fix → Review → Commit.
 [For dev]: Full pipeline: Brainstorm → Plan → Revision → Execute → Review → Commit.
 
 OK, or do you want a different pipeline?
@@ -63,7 +63,7 @@ Task arrives → Classify tier
 
 ## Pipeline Orchestration
 
-### Dev Pipeline (`/dev`)
+### Dev Pipeline
 
 ```
 Phase 0: context-loader
@@ -77,19 +77,19 @@ Phase 6: commit-push (lint gate + PR description)
 Phase 7: solutions
 ```
 
-### Resolve Pipeline (`/resolve`)
+### Resolve Pipeline
 
 ```
 Phase 0: context-loader
 Phase 1R: diagnosis (Opus/high investigator) → [HUMAN APPROVAL]
-Phase 4: execute (Prove-It TDD + incremental commits + execution log) → [TEST GATE]
+Phase 4: execute (diagnosis-driven Prove-It TDD + minimal fix + execution log) → [TEST GATE]
 Phase 5: code-review
 Phase 5.5: fix-loop
 Phase 6: commit-push
 Phase 7: solutions
 ```
 
-### Trivial Pipeline (`/quick`)
+### Trivial Pipeline
 
 ```
 TDD/Verification → Lint check → Commit
@@ -151,6 +151,25 @@ During execution, small implementation decisions (variable names, helper placeme
 | 06 | `06-solutions.md` | Post-pipeline | Dev, Resolve |
 
 All artifacts carry YAML frontmatter with `status: draft | approved | superseded | archived`.
+
+### Artifact Status Lifecycle
+
+Use these states consistently:
+
+- `draft` — created, but not yet approved at its owning gate
+- `approved` — passed its owning gate and is now the source of truth
+- `superseded` — replaced by a newer artifact version
+- `archived` — intentionally retired
+
+Ownership and transition points:
+
+- `01-brainstorm.md` → `approved` when the user confirms the recommended direction
+- `01-diagnosis.md` → `approved` when the user accepts the diagnosis and proceeds
+- `02-plan.md` → `approved` when revision is complete and the user says `go`
+- `03-revision.md` → `approved` when the user says `go`
+- `04-execution-log.md` → `approved` when execute completes its final test gate and the log is written
+- `05-code-review.md` → `approved` when the final review round is complete
+- `06-solutions.md` → `approved` when the synthesis is written
 
 ## Common Rationalizations
 

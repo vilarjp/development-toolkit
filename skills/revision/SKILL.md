@@ -109,6 +109,8 @@ For each gap found:
 4. **For P2:** Record in revision document, do not modify source documents.
 5. **Record every change** in the revision document.
 
+If no material gaps are found, say so explicitly. A clean pass is valid. Do NOT invent adjustments to make the phase look rigorous.
+
 Do NOT introduce new features or expand scope. Fix gaps and inconsistencies only.
 
 ### Phase 3.7 — Write Revision Artifact
@@ -136,6 +138,11 @@ Reply "go" to proceed to implementation, or describe changes needed.
 
 Do NOT proceed without explicit human approval.
 
+If the human replies `go`:
+1. UPDATE `02-plan.md` frontmatter from `status: draft` to `status: approved`
+2. UPDATE `03-revision.md` frontmatter from `status: draft` to `status: approved`
+3. Proceed to execution
+
 ## Rules
 
 - Read FULL text of both documents. Do not skim.
@@ -155,12 +162,12 @@ Do NOT proceed without explicit human approval.
 
 ## Red Flags — Self-Check
 
-- You approved the revision without naming a single gap
+- You approved the revision without checking the cross-reference items
 - The scope creep check shows growth but you did not flag it
 - You did not read every section of both documents
-- No adversarial findings were surfaced (the adversarial reviewer should always find something to challenge)
+- You surfaced adversarial objections that were not grounded in the actual plan or context
 - You skipped the human approval gate
-- The revision document has no "Adjustments Made" entries (at minimum, the adversarial review should produce some)
+- You fabricated a gap or adjustment because a clean pass felt suspicious
 
 ## Transition
 

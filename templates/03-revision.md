@@ -1,7 +1,7 @@
 ---
 phase: revision
 date: "{{date}}"
-status: draft
+status: "{{status}}"
 topic: "{{topic}}"
 reviewed:
   - "{{spec_dir}}/01-brainstorm.md"

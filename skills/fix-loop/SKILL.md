@@ -31,10 +31,11 @@ Exclude `pre_existing: true` findings — they are reported but not acted upon.
 
 For each `safe_auto` finding:
 1. Read the file at the specified line.
-2. Apply the `suggested_fix`.
-3. Run the affected tests (tests in the same file or module).
-4. If the fix breaks tests: **downgrade to gated_auto** and present to human instead.
-5. If the fix passes: record it in the "Applied Fixes" section.
+2. VERIFY the proposed fix is truly behavior-preserving. If the safety is uncertain, downgrade to `gated_auto` before changing code.
+3. Apply the `suggested_fix`.
+4. Run the affected tests (tests in the same file or module).
+5. If the fix breaks tests: **downgrade to gated_auto** and present to human instead.
+6. If the fix passes: record it in the "Applied Fixes" section.
 
 Run the project formatter on all modified files after applying safe_auto fixes.
 
@@ -115,10 +116,17 @@ For findings the user chose to "defer":
 - Record in `06-solutions.md` under a "Deferred Findings" section
 - Include: title, severity, file, line, impact, and reason for deferral
 
+### Step 8 — Finalize Review Artifact Status
+
+When the review loop reaches a final state for the current pipeline run:
+- UPDATE `05-code-review.md` frontmatter from `status: draft` to `status: approved`
+- Leave it `draft` only while additional re-review rounds are still pending
+
 ## Rules
 
-- safe_auto fixes are applied WITHOUT user approval. This is by design — they are deterministic and behavior-preserving.
+- safe_auto fixes are applied WITHOUT user approval only when they are clearly deterministic and behavior-preserving.
 - If a safe_auto fix breaks tests, it is NOT safe. Downgrade immediately.
+- If there is any doubt that a fix changes behavior, downgrade to gated_auto before applying it.
 - Every approved fix follows TDD. No fix without a test (unless verification mode applies).
 - Re-review scope is limited to changed files. Do not re-review the entire diff.
 - The plan-alignment reviewer is always re-dispatched (if plan exists) because any code change can drift from the plan.

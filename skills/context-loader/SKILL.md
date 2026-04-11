@@ -107,7 +107,7 @@ In each directory, check for:
 
 If specs exist, read their YAML frontmatter to check the `status` field (`draft`, `approved`, `superseded`, `archived`). Note which phases have been completed and which are pending.
 
-**Stalled pipeline detection:** If a spec directory has `01-brainstorm.md` or `01-diagnosis.md` with `status: approved` but no `05-code-review.md`, this is a stalled pipeline. Report it.
+**Stalled pipeline detection:** If a spec directory has `01-brainstorm.md` or `01-diagnosis.md` with `status: approved` but no `05-code-review.md`, this is a stalled pipeline. Draft specs are not stalled — they are in progress.
 
 If no spec artifacts are found, report "No active specs found."
 
