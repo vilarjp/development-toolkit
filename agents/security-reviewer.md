@@ -102,6 +102,7 @@ Return a single JSON object matching the findings schema:
       "file": "src/components/ProductCard.tsx",
       "line": 23,
       "impact": "Attacker can inject script via product name field — stored XSS affecting all users who view the product",
+      "intent": "Unsanitized user input rendered as HTML in product display",
       "autofix": "safe_auto",
       "confidence": 0.91,
       "evidence": ["Line 23: dangerouslySetInnerHTML={{__html: product.name}} — product.name comes from user input without sanitization"],
@@ -114,6 +115,14 @@ Return a single JSON object matching the findings schema:
   "testing_gaps": []
 }
 ```
+
+## Red Flags — Self-Check
+
+- You reported a security finding without a concrete exploitation scenario
+- You flagged a theoretical vulnerability with no evidence in the actual code
+- You missed checking for hardcoded secrets in the diff
+- You assigned high confidence to a finding you cannot trace to an exploitable path
+- You did not apply the PCI module when the diff touches payment code
 
 ## Iron Rules
 

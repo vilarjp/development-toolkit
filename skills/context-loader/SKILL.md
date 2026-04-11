@@ -1,6 +1,6 @@
 ---
 name: context-loader
-description: Use before any pipeline phase to scan and index the current project context. Reads CLAUDE.md, project structure, config files, and existing conventions.
+description: Use before any pipeline phase to load project context.
 ---
 
 # Context Loader (Phase 0)
@@ -165,6 +165,23 @@ KEEP the total output under 2,000 tokens. Prioritize information that affects im
 - Does not execute code or install dependencies
 
 This is a read-only reconnaissance phase.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "I already read this project last session" | Sessions do not share state. You have zero project context right now. Read the files. |
+| "CLAUDE.md is enough, I'll skip the structure scan" | CLAUDE.md tells you rules. Structure tells you where things live. Both are mandatory. |
+| "This is a small change, context loading is overkill" | Context loading takes seconds. Guessing at conventions takes hours of rework. |
+| "I can infer the tech stack from the code I'm about to read" | You will read the wrong files. The config files tell you which files matter. |
+
+## Red Flags — Self-Check
+
+- You are referencing a file you have not opened in this session
+- You assumed a test runner or build tool without reading package.json / pyproject.toml
+- You stated a convention ("this project uses X") without citing an actual file you read
+- You skipped the structure scan and went straight to reading source code
+- The project context block is missing from your conversation
 
 ## Transition
 

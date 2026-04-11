@@ -1,6 +1,6 @@
 ---
 name: fix-loop
-description: Addresses code review findings using TDD. Auto-applies safe_auto fixes, presents gated_auto and manual findings for human triage, executes approved fixes, re-runs bounded code review. Repeats until clean or cap reached.
+description: Use when code review has actionable findings to address.
 ---
 
 # Fix Loop (Phase 5.5)
@@ -123,6 +123,23 @@ For findings the user chose to "defer":
 - Re-review scope is limited to changed files. Do not re-review the entire diff.
 - The plan-alignment reviewer is always re-dispatched (if plan exists) because any code change can drift from the plan.
 - NEVER loop infinitely. The hard ceiling exists to prevent this.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "This finding is a false positive, I'll skip it" | You do not decide that. Classify it and present to the human for triage. |
+| "Fixing this would require changing too much code" | That is what the manual classification is for. Report the scope, let the human decide. |
+| "All the findings are minor, I'll batch-fix them" | Each fix follows TDD. Each fix gets a test. Batching hides regressions. |
+| "Re-review is unnecessary, my fixes are correct" | The re-review catches regressions from your fixes. It is bounded (max 3 rounds). Run it. |
+
+## Red Flags — Self-Check
+
+- You applied a gated_auto fix without human approval
+- A safe_auto fix broke tests and you did not downgrade it to gated_auto
+- You are in round 4+ (hard ceiling is 3 rounds)
+- You skipped TDD for an approved fix
+- You deferred a P0 finding without an explicit human override
 
 ## Transition
 

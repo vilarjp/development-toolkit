@@ -23,6 +23,7 @@
           "confidence",
           "evidence",
           "pre_existing",
+          "intent",
           "suggested_fix",
           "needs_verification"
         ],
@@ -49,6 +50,10 @@
             "type": "string",
             "description": "Why this matters — describe the failure mode, not the symptom"
           },
+          "intent": {
+            "type": "string",
+            "description": "File/line-independent description of what the finding is about. Must be meaningful even if the file is renamed or the code is restructured. Example: 'Missing null check on user input in the address validation flow' rather than 'Missing null check at line 42 of addressService.ts'."
+          },
           "autofix": {
             "enum": ["safe_auto", "gated_auto", "manual", "advisory"],
             "description": "safe_auto=deterministic fix no behavior change, gated_auto=concrete fix changes behavior/contracts, manual=requires design decisions, advisory=report only"
@@ -71,7 +76,7 @@
           },
           "suggested_fix": {
             "type": ["string", "null"],
-            "description": "Concrete minimal fix, or null if no good fix is obvious. A bad suggestion is worse than null."
+            "description": "Concrete minimal fix described as a behavioral change, not a code diff. Example: 'Add null guard before accessing nested property' rather than 'Add `if (x != null)` at line 42'. Null if no good fix is obvious."
           },
           "needs_verification": {
             "type": "boolean",

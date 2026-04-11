@@ -1,6 +1,6 @@
 ---
 name: revision
-description: Use after brainstorm and plan are written to cross-check both documents for gaps, inconsistencies, scope creep, and non-goals coverage. Updates 02-plan.md in place, produces 03-revision.md, and triggers human approval gate.
+description: Use after plan to cross-check documents for gaps and trigger human approval.
 ---
 
 # Revision (Phase 3)
@@ -79,6 +79,22 @@ Record the finding in the revision document regardless of the user's decision.
 5. **Pattern compatibility:** Proposed patterns compatible with existing codebase.
 6. **Dependency availability:** Proposed dependencies installable and compatible.
 
+### Phase 3.5.5 — Adversarial Review
+
+DISPATCH the adversarial reviewer agent to stress-test the brainstorm and plan:
+
+- **Agent:** `agents/adversarial-reviewer.md`
+- **Model:** Latest Sonnet, effort: medium
+- **Input:** `01-brainstorm.md`, `02-plan.md`, project context from Phase 0
+
+WAIT for the adversarial reviewer to complete.
+
+Incorporate its findings:
+- **Challenged premises:** Record in revision document under a new `## Adversarial Review` section
+- **Unstated assumptions surfaced:** Add to the plan's risk section if they represent real risks
+- **Missing failure modes:** Add to plan steps as additional acceptance criteria or risk mitigations
+- **P0/P1 adversarial findings:** Treat as revision gaps — apply adjustments in Phase 3.6
+
 ### Phase 3.6 — Apply Adjustments
 
 For each gap found:
@@ -127,6 +143,24 @@ Do NOT proceed without explicit human approval.
 - If a critical gap requires rethinking the approach, say so explicitly.
 - The revision document must be complete enough to understand all adjustments without reading the conversation.
 - Do NOT skip the human approval gate.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "The plan looks fine, nothing to revise" | You have not checked. Run every item in the cross-reference checklist. |
+| "The user is eager to start coding" | Revision takes 10 minutes. Fixing a flawed plan during execution takes hours. |
+| "Scope creep detection is unnecessary for small changes" | Small changes with scope creep become medium changes. Check anyway. |
+| "The adversarial review is overkill for this feature" | The adversarial reviewer catches assumptions you did not know you were making. |
+
+## Red Flags — Self-Check
+
+- You approved the revision without naming a single gap
+- The scope creep check shows growth but you did not flag it
+- You did not read every section of both documents
+- No adversarial findings were surfaced (the adversarial reviewer should always find something to challenge)
+- You skipped the human approval gate
+- The revision document has no "Adjustments Made" entries (at minimum, the adversarial review should produce some)
 
 ## Transition
 

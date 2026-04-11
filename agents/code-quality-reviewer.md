@@ -86,6 +86,7 @@ Return a single JSON object matching the findings schema. Do NOT return markdown
       "file": "src/services/example.ts",
       "line": 42,
       "impact": "Why this matters — describe the failure mode",
+      "intent": "Null safety gap in address handling — nested property access without guard",
       "autofix": "safe_auto",
       "confidence": 0.92,
       "evidence": ["Line 42: address.zipCode.trim() — address can be null"],
@@ -98,6 +99,15 @@ Return a single JSON object matching the findings schema. Do NOT return markdown
   "testing_gaps": []
 }
 ```
+
+## Red Flags — Self-Check
+
+- You reported a finding without reading the actual code at the specified file and line
+- Your evidence array contains no code-grounded proof (just descriptions of what "might" happen)
+- You assigned P0 severity to a style issue
+- You assigned P3 severity to a data loss or security issue
+- Your confidence score exceeds 0.85 but you cannot trace the full execution path
+- You fabricated findings because the code looked too clean
 
 ## Iron Rules
 

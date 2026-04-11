@@ -1,6 +1,6 @@
 ---
 name: commit-push
-description: Use when code is reviewed and ready to commit. Enforces branch safety (never commits to master/main), conventional commits, lint gate, PR description, logical commit splitting, and rebase before push.
+description: Use when code is reviewed and ready to commit.
 ---
 
 # Commit and Push (Final Phase)
@@ -159,6 +159,24 @@ If pushing to create a PR, generate the PR description from spec artifacts:
 4. **NEVER `git add -A` or `git add .`.** Stage specific files by name.
 5. **NEVER commit secrets.** Refuse even if user asks.
 6. **NEVER skip pre-commit verification.** Tests and lint MUST pass.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "I'll push to main just this once, it's a small fix" | There is no exception. Create a branch. The hook will block you anyway. |
+| "Tests passed earlier, no need to re-run" | State changes between runs. Re-run. The pre-commit gate exists for a reason. |
+| "Lint warnings are fine, only errors matter" | Check the project config. Some projects treat warnings as errors. Run the linter. |
+| "I'll write the PR description later" | The spec artifacts exist now. The PR description takes 2 minutes. Later means never. |
+
+## Red Flags — Self-Check
+
+- You are on the main or master branch
+- You used `git add -A` or `git add .` instead of staging specific files
+- You skipped the pre-commit verification gate (tests, lint, secrets)
+- You committed without a conventional commit message
+- Unstaged files exist that match the change scope
+- You are about to force-push without explicit human approval
 
 ## Error Recovery
 

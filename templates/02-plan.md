@@ -16,6 +16,8 @@ origin: "{{spec_dir}}/01-brainstorm.md"
 
 ## Implementation Steps
 
+> **Durability rule:** Acceptance criteria must be verifiable from behavior alone. Describe what to achieve by intent ("Add rate limiting to public API endpoints"), not by code location ("Insert rateLimiter() at line 47 of src/middleware/auth.ts"). File paths in the Files field are operational hints for the implementer — they are not part of the specification and may change.
+
 ### Step 1: {{Title}} [SEQUENTIAL]
 
 - **Files:** `{{path/to/file}}`

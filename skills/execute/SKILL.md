@@ -1,6 +1,6 @@
 ---
 name: execute
-description: Use when the plan is approved and ready for implementation. Dispatches subagents (Sonnet/medium) per Execution Waves, enforces TDD, incremental commits per wave, produces 04-execution-log.md.
+description: Use when the plan is approved and ready for implementation.
 ---
 
 # Execute (Phase 4)
@@ -13,6 +13,34 @@ Implement the approved plan through disciplined, test-driven development. Use pa
 - `03-revision.md` MUST exist (dev pipeline) or be absent (resolve pipeline).
 - Human approval MUST have been given.
 - Project context from Phase 0 MUST be available.
+
+## Minimal Diff Constraint
+
+**Change the least amount of code possible to achieve the goal.** Every line in the diff must be traceable to an acceptance criterion in the plan. If you cannot trace a line to a criterion, do not write it.
+
+This constraint applies to every subagent dispatch. Include it in every implementer prompt.
+
+## Scope Discipline — NOTICED BUT NOT TOUCHING
+
+When you or a subagent notice an out-of-scope improvement opportunity during execution, log it — do NOT act on it.
+
+**Format in the execution log (per wave):**
+```
+### Noticed But Not Touching
+- [observation] — out of scope because [reason]
+```
+
+Instruct subagents: "If you notice something worth improving that is outside your acceptance criteria, include it in your report under CONCERNS with prefix 'NOTICED BUT NOT TOUCHING:'. Do not act on it."
+
+## Confusion Protocol
+
+When you or a subagent encounter ambiguity during execution:
+
+1. **STOP** — Do not write code while confused
+2. **NAME** — State the confusion explicitly: "I am confused about X because Y"
+3. **OPTIONS** — Present the options: "Option A: ... / Option B: ..."
+4. **WAIT** — Subagents: report NEEDS_CONTEXT with the confusion. Orchestrator: present to the human
+5. **PLAN** — Once resolved, state the plan before executing: "PLAN: 1. X, 2. Y, 3. Z → Executing unless you redirect"
 
 ## Process
 
@@ -115,6 +143,10 @@ WRITE `04-execution-log.md` in the active spec directory using `templates/04-exe
 - For each wave: steps completed, test files written, commit SHA + message, test status
 - **Unexpected Decisions:** Any deviation from the plan, with rationale
 - **Verification Mode Changes:** Infrastructure/config files that used verification mode instead of TDD
+- **Change Summary** — Required final section with three subsections:
+  - **Changes Made:** Concise description of each logical change, grouped by intent
+  - **Things I Didn't Touch:** Areas explicitly in scope but deliberately left unchanged, with reason
+  - **Potential Concerns:** Risks, edge cases not fully covered, performance implications, migration needs
 
 This artifact feeds the code review phase — reviewers use it to understand implementation intent and focus on areas of deviation.
 
@@ -161,6 +193,27 @@ DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
 - Do NOT combine steps. Each step is a separate dispatch.
 - Do NOT reorder waves.
 - Each wave ends with a commit before the next wave starts.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "I'll write tests after the code works" | The TDD skill is non-negotiable. No production code without a failing test. |
+| "This wave is too small for a commit" | Every wave ends with a commit. This is how we isolate regressions. |
+| "I need to refactor this adjacent code to make my change clean" | You are here to deliver acceptance criteria, not to renovate. Flag it as NOTICED BUT NOT TOUCHING. |
+| "The subagent can figure out the context on its own" | Subagents start with zero context. Everything they need MUST be in their prompt. |
+| "I'll combine these two steps to save time" | Steps are separate for a reason — they have independent acceptance criteria and TDD cycles. Do not combine. |
+
+## Red Flags — Self-Check
+
+- Production code exists without a corresponding test file
+- You made changes outside the current wave's scope
+- A subagent was dispatched without TDD rules in its prompt
+- Two parallel subagents in the same wave are touching the same file
+- You skipped the final test gate after the last wave
+- A wave completed without a commit
+- You combined multiple plan steps into a single subagent dispatch
+- You are writing code while confused about the acceptance criteria
 
 ## Transition
 

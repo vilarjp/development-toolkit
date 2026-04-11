@@ -67,6 +67,13 @@ If you catch yourself doing any of these, STOP and return to Phase 1:
 - Proposing solutions before tracing data flow
 - Each fix reveals a new problem in a different place
 
+**Self-check — you are violating the protocol if:**
+- You have proposed a fix but have zero hypotheses documented
+- You have not traced the data flow backward from the symptom
+- Your root cause explanation does not reference code you actually read
+- You skipped pattern analysis (comparing broken code to working code)
+- You wrote more than a test file (you are read-only for production code)
+
 ## Output Format
 
 Produce a diagnosis document following the `01-diagnosis.md` template with all sections filled. The document MUST include:

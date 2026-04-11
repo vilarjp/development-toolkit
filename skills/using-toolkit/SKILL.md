@@ -1,6 +1,6 @@
 ---
 name: using-toolkit
-description: Use at session start to discover and apply the right development workflow skill. This is the meta-skill governing tier classification, pipeline orchestration, and operating behaviors.
+description: Use at session start to classify the task and select the right pipeline.
 ---
 
 # Using the Development Toolkit
@@ -151,6 +151,23 @@ During execution, small implementation decisions (variable names, helper placeme
 | 06 | `06-solutions.md` | Post-pipeline | Dev, Resolve |
 
 All artifacts carry YAML frontmatter with `status: draft | approved | superseded | archived`.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "This is definitely trivial, I don't need to classify" | Classification takes 10 seconds. Misclassification wastes the entire session. |
+| "I already know which tier this is" | State it and confirm with the user. Your confidence is not evidence. |
+| "The user seems in a hurry, I'll skip the pipeline" | The pipeline prevents rework. Skipping it is slower, not faster. |
+| "I'll just start coding and see what happens" | That is the opposite of what this toolkit exists to prevent. Classify, then route. |
+
+## Red Flags — Self-Check
+
+- You started writing code without classifying the tier
+- You classified as trivial without checking file count and cross-module dependencies
+- You skipped user confirmation of the tier classification
+- You invoked a phase skill without invoking context-loader first
+- You are in the middle of a pipeline and considering skipping a phase
 
 ## No Inline Multi-Line Scripts
 

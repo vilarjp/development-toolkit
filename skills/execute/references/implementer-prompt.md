@@ -50,6 +50,19 @@ Before writing any code, briefly consider your options:
 
 For XS tasks or tasks that follow an obvious existing pattern, a brief mental check is sufficient — do not over-formalize this step.
 
+## Pre-Flight Checklist
+
+Before EVERY code change, verify:
+
+1. **File exists** — Read the file before editing. If it does not exist and you are not creating it, report NEEDS_CONTEXT.
+2. **Symbol exists** — Grep for the function, class, or variable before calling or extending it.
+3. **Import paths resolve** — Verify the module path exists in the project before adding an import.
+4. **Directory structure matches** — Do not assume directories exist. Verify before creating files.
+5. **Types/signatures match** — Read the function signature before calling it with arguments.
+6. **Test file exists** — If modifying production code, confirm the corresponding test file exists.
+
+If any check fails, STOP and report NEEDS_CONTEXT. Do not proceed with assumptions.
+
 ## TDD Protocol
 
 Follow the RED → GREEN → REFACTOR cycle for EACH acceptance criterion. No exceptions.
@@ -97,6 +110,7 @@ This is not optional. Post-hoc tests verify implementation details, not behavior
 ## Scope Boundary
 
 ### Do NOT:
+- Change code that is not traceable to your acceptance criteria (every line in your diff must map to a criterion)
 - Modify files outside your file list
 - Add features beyond your acceptance criteria
 - Add comments that explain obvious code (the code should speak for itself)
@@ -112,6 +126,7 @@ This is not optional. Post-hoc tests verify implementation details, not behavior
 - Write tests that are specific and behavior-focused
 - Handle errors for the cases your acceptance criteria specify
 - Use existing utilities and helpers when they fit
+- Log out-of-scope observations as "NOTICED BUT NOT TOUCHING: [observation]" in the CONCERNS section of your report — do not act on them
 
 ## Anti-Patterns to Avoid
 
@@ -191,6 +206,8 @@ REASON: [specific, detailed explanation of why you cannot proceed]
 ATTEMPTED: [what you tried before concluding you are blocked]
 SUGGESTED_RESOLUTION: [what needs to change for this task to become unblocked]
 ```
+
+**It is always OK to stop and say "this is too hard for me."** A BLOCKED report that arrives quickly is more valuable than a DONE report that is wrong. If you have spent two attempts and are still guessing, report BLOCKED. The orchestrator can reassign or escalate.
 
 ## Implementation Notes
 

@@ -23,11 +23,20 @@ reviewers_conditional_skipped:
 
 ## Reviewer Scope
 
+### Stage 1 — Spec Compliance (Blocking Gate)
+
+| Reviewer | Dispatch | Scope | Files Reviewed |
+|----------|----------|-------|----------------|
+| plan-alignment-reviewer | {{Dispatched / Skipped — no 02-plan.md}} | Plan vs implementation match | {{file list}} |
+
+**Stage 1 verdict:** {{PASSED — no P0/P1 spec gaps / FAILED — spec gaps found, Stage 2 skipped}}
+
+### Stage 2 — Code Quality (Parallel)
+
 | Reviewer | Dispatch | Scope | Files Reviewed |
 |----------|----------|-------|----------------|
 | code-quality-reviewer | Always | Correctness, readability, architecture, performance | {{file list}} |
 | test-reviewer | Always | Test quality, coverage, TDD adherence | {{file list}} |
-| plan-alignment-reviewer | {{Conditional / Skipped — reason}} | Plan vs implementation match | {{file list}} |
 | security-reviewer | {{Conditional / Skipped — reason}} | Auth, input validation, data safety, payment code | {{file list}} |
 | convention-reviewer | {{Conditional / Skipped — reason}} | Project pattern adherence (non-blocking) | {{file list}} |
 

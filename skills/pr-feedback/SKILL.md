@@ -1,6 +1,6 @@
 ---
 name: pr-feedback
-description: Fetches unresolved PR review threads, clusters them by concern, dispatches parallel fixers (Sonnet/medium), commits, pushes, and resolves threads. Discussion replies require human approval.
+description: Use when a PR has unresolved review threads to address.
 ---
 
 # PR Feedback Resolution (Post-Pipeline)
@@ -131,6 +131,23 @@ Not addressing: [N] threads
 - Never force-push after fixing PR feedback. Always push new commits.
 - If a fix requires changes beyond the scope of the review comment, flag it for human decision.
 - Respect the reviewer's intent — if they ask for X, don't give them Y "because it's better."
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "The reviewer is wrong about this" | Maybe. Draft a reply explaining why and let the human approve it. Do not dismiss. |
+| "This is just a style preference, I'll ignore it" | Classify it as discussion and draft a reply. The human decides what to ignore. |
+| "I'll fix everything in one big commit" | Cluster by concern. Each cluster gets its own fix with TDD. One big commit hides regressions. |
+| "The code already changed, this comment is stale" | Verify with the diff. If truly stale, auto-reply with the commit SHA. Do not assume. |
+
+## Red Flags — Self-Check
+
+- You auto-posted a discussion reply without human approval
+- You dismissed a review comment without classifying it
+- Two fixers are touching the same file concurrently
+- You force-pushed after fixing PR feedback
+- You fixed something differently than requested without documenting why
 
 ## Transition
 

@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: Use when implementing any code change. Enforces the RED-GREEN-REFACTOR cycle for behavior-bearing code and verification mode for infrastructure. No production code without a failing test first.
+description: Use when implementing any code change.
 ---
 
 # TDD (Cross-Cutting)
@@ -14,6 +14,18 @@ During pipeline execution (Phase 4), the execute skill loads and injects these r
 When invoked standalone via `Skill: development-toolkit:tdd`, this skill serves as a reference for manual implementation work.
 
 **Subagent self-check:** If you are a subagent and do NOT see TDD rules in your prompt, STOP. Report that TDD rules were not injected.
+
+## Step 0 — Survey Existing Tests
+
+**Before writing any test, read the existing test file** (if one exists) for the module under change. Note:
+- Fixture patterns and test helpers in use
+- Naming conventions (describe/it, test, or other structure)
+- describe/context nesting style
+- Assertion library and assertion patterns
+- Setup and teardown patterns
+- Import patterns for the module under test
+
+Your new tests must be indistinguishable from the existing ones in style. If no test file exists, follow the project-wide conventions from Phase 0 context.
 
 ## Two Modes
 
@@ -166,6 +178,16 @@ No exceptions.
 | "This is too simple to test" | Then the test is trivial to write. Do it. |
 | "Just a config change" | Use verification mode. Run the build and tests. |
 | "The deadline is too tight" | The deadline is too tight for debugging. Write the test. |
+
+## Red Flags — Self-Check
+
+- You wrote production code before writing a failing test
+- A test you wrote passed immediately without any production code change
+- You are writing code with a TODO or FIXME that describes something you do not understand
+- You created a new test file when an existing one covers the same module
+- You added error handling or edge case code not covered by any test
+- You are in GREEN phase but writing more code than the minimum to pass the test
+- You skipped the REFACTOR phase because "the code is fine"
 
 ## Transition
 
