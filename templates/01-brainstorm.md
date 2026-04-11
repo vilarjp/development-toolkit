@@ -3,6 +3,7 @@ phase: brainstorm
 date: "{{date}}"
 status: draft
 topic: "{{topic}}"
+audience: "Technical team (developer or team members)"
 complexity: "{{LOW | MEDIUM | HIGH}}"
 ---
 
@@ -14,14 +15,18 @@ complexity: "{{LOW | MEDIUM | HIGH}}"
 
 ## Goals
 
-1. {{Primary goal}}
-2. {{Secondary goal}}
-3. {{Tertiary goal}}
+1. {{Primary goal — must be measurable or verifiable}}
+2. {{Secondary goal — must be measurable or verifiable}}
+3. {{Tertiary goal — must be measurable or verifiable}}
 
 ## Non-Goals
 
 1. {{What this effort explicitly will NOT address}}
 2. {{Another boundary}}
+
+## Constraints
+
+{{Timeline, tech stack limitations, backwards compatibility requirements, deployment constraints, or other hard boundaries.}}
 
 ## Key Questions and Unknowns
 
@@ -31,9 +36,9 @@ complexity: "{{LOW | MEDIUM | HIGH}}"
 
 ## Assumptions
 
-1. {{Assumption about the codebase, users, or environment}}
-2. {{Assumption about available tools or dependencies}}
-3. {{Assumption about timeline or scope}}
+1. {{Assumption about the codebase — verified by reading code: YES/NO}}
+2. {{Assumption about available tools or dependencies — verified: YES/NO}}
+3. {{Assumption about environment or infrastructure — verified: YES/NO}}
 
 ## Options Considered
 
@@ -76,5 +81,5 @@ complexity: "{{LOW | MEDIUM | HIGH}}"
 ## Recommended Direction
 
 - **Choice:** {{Option letter and name}}
-- **Rationale:** {{Why this option wins given the goals and constraints}}
+- **Rationale:** {{Why this option wins — must reference specific pros/cons, not just "feels right"}}
 - **Key trade-off accepted:** {{The main downside we are consciously accepting}}

@@ -2,75 +2,74 @@
 
 Instructions for AI agents working in this repository.
 
-## What this is
+## What This Is
 
-This is a Claude Code plugin toolkit that provides a structured development pipeline: brainstorm, plan, revise, execute (TDD), review, and commit. It is designed to be installed into any project and invoked via slash commands.
+A Claude Code plugin toolkit providing spec-driven development through three pipeline tiers: dev (features), resolve (bugs), and trivial (small fixes). It uses structured JSON findings, confidence-gated code review, and TDD enforcement.
 
-## Repository layout
-
-```
-skills/            Skill definitions (SKILL.md + references/)
-  dev-pipeline/      Feature pipeline orchestrator
-  resolve-pipeline/  Resolve pipeline orchestrator (bug fixes)
-  diagnosis/         Phase 1R: structured bug investigation
-  brainstorm/        Phase 1: problem exploration
-  plan/              Phase 2: technical planning
-  revision/          Phase 3: cross-document review
-  execute/           Phase 4: TDD implementation
-  code-review/       Phase 5: multi-axis review
-  commit-push/       Phase 6: safe git operations
-  tdd/               Cross-cutting TDD enforcement
-  context-loader/    Phase 0: project scanning
-  using-toolkit/     Meta-skill: discovery + operating behaviors
-agents/            Agent personas for parallel reviewer subagents
-hooks/             Session and pre-tool hooks
-templates/         Document templates for spec artifacts
-```
-
-## Rules for modifying skills
-
-- Each skill lives in `skills/<name>/SKILL.md` with optional `references/` subdirectory.
-- Keep `SKILL.md` under 500 lines. If a skill grows beyond that, extract late-sequence content (examples, reference tables, detailed instructions for sub-steps) into `references/` files.
-- Reference files are loaded by the skill only when needed — they are not injected into context automatically.
-- The `SKILL.md` is the entry point. It must be self-contained enough to understand the skill's purpose and flow without reading references.
-
-## Rules for modifying templates
-
-- Templates live in `templates/` and are used by skills to create spec artifacts in per-session directories under `docs/` (format: `docs/YYYY-MM-DD-short-description/`).
-- Never modify a template without updating the corresponding skill that uses it.
-- Templates use `{{placeholder}}` syntax for dynamic content.
-- YAML frontmatter in templates defines metadata fields that skills must populate.
-
-## Rules for modifying agents
-
-- Agent personas live in `agents/` as markdown files with YAML frontmatter.
-- Each agent must specify `name`, `description`, and `model: inherit`.
-- Agent instructions define the reviewer's scope, methodology, and output format.
-- All agents must include the iron rule: read actual code, do not trust self-reported claims.
-
-## Spec directory convention
-
-Pipeline artifacts are stored in per-session directories under `docs/`:
+## Repository Layout
 
 ```
-docs/YYYY-MM-DD-short-description/
+findings-schema.json   Structured output contract for reviewer agents
+skills/                Skill definitions (SKILL.md per skill)
+  using-toolkit/         Meta-skill: tier classification + operating behaviors
+  context-loader/        Phase 0: project scanning (hard gate on CLAUDE.md)
+  brainstorm/            Phase 1: Socratic exploration + self-review
+  diagnosis/             Phase 1R: structured bug investigation (Opus/high)
+  plan/                  Phase 2: research sub-agents + architecture (Opus/high)
+  revision/              Phase 3: cross-check + scope creep + plan update
+  execute/               Phase 4: TDD + incremental commits + execution log (Sonnet/medium)
+  tdd/                   Cross-cutting TDD + verification mode
+  code-review/           Phase 5: structured findings + conditional reviewers (Sonnet/medium)
+  fix-loop/              Phase 5.5: autofix routing + bounded re-review
+  commit-push/           Phase 6: lint gate + PR description
+  pr-feedback/           Post-pipeline: PR thread resolution (Sonnet/medium)
+  solutions/             Phase 7: learnings capture
+agents/                Agent definitions for reviewer and investigator subagents
+hooks/                 Session, pre-tool, and stop hooks
+templates/             Document templates for spec artifacts (01 through 06)
 ```
 
-- Use today's date and a kebab-case short description derived from the topic (e.g., `docs/2026-04-08-user-auth-flow/`)
-- Artifacts within: `01-brainstorm.md` or `01-diagnosis.md`, `02-plan.md`, `03-revision.md`, `04-code-review.md`
-- To detect an active pipeline, search for `docs/YYYY-MM-DD-*/` directories and check which artifacts exist within.
+## Rules for Modifying Skills
 
-## Rules for modifying hooks
+- Each skill lives in `skills/<name>/SKILL.md`.
+- Keep `SKILL.md` under 500 lines. Extract detailed content to `references/`.
+- SKILL.md is the entry point — self-contained enough to understand purpose and flow.
 
-- Hook configuration is in `hooks/hooks.json`.
-- Hook scripts are in `hooks/` and must be executable bash scripts.
-- The git-safety hook blocks writes to master/main. Do not weaken this protection.
+## Rules for Modifying Templates
 
-## Testing changes
+- Templates live in `templates/` and are used to create artifacts in `docs/YYYY-MM-DD-topic/`.
+- Use `{{placeholder}}` syntax for dynamic content.
+- YAML frontmatter must include `status: draft | approved | superseded | archived`.
+- Never modify a template without updating the skill that uses it.
 
-Test any skill changes by running the skill in a sample project:
+## Rules for Modifying Agents
 
-1. Install the plugin in a test project
-2. Run the relevant skill
-3. Verify the skill produces correct output
-4. Verify hooks fire correctly
+- Agent definitions live in `agents/` as markdown with YAML frontmatter.
+- Required frontmatter: `name`, `description`, `model` (sonnet/opus), `effort` (medium/high), `dispatch` (always/conditional), `blocking` (true/false).
+- All reviewer agents must return JSON matching `findings-schema.json`.
+- All agents must include confidence calibration guidelines.
+- Iron rule: read actual code, do not trust self-reported claims.
+
+## Artifact Numbering
+
+```
+01-brainstorm.md or 01-diagnosis.md
+02-plan.md
+03-revision.md
+04-execution-log.md
+05-code-review.md
+06-solutions.md
+```
+
+Pipeline detection: check for `docs/YYYY-MM-DD-*/` directories. Stalled if `01-*` exists with `status: approved` but `05-code-review.md` is missing.
+
+## Rules for Modifying Hooks
+
+- Configuration in `hooks/hooks.json`.
+- Scripts must be executable bash.
+- Git-safety protection is non-negotiable — do not weaken.
+- Stop-guard must check both v2.1.0 (05) and legacy (04) numbering.
+
+## Findings Schema
+
+Reviewers produce structured JSON per `findings-schema.json`. The code-review orchestrator adds: `id` (fingerprint), `reviewers[]`, `reviewer_agreement`, `original_confidence`. Confidence below 0.60 is suppressed (P0 exception at 0.50+).
