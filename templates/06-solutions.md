@@ -14,7 +14,7 @@ pipeline: "{{dev | resolve}}"
 
 ## Root Cause
 
-{{For bugs only — what caused the issue. Reference specific files and lines. Omit this section for features.}}
+{{For bugs only — describe the mechanism of failure by behavior, not by file path and line number. Example: 'The validation middleware skips empty strings, allowing null values to reach the database layer.' The description must remain valid after refactoring. Omit this section for features.}}
 
 ## Approach
 
@@ -27,8 +27,8 @@ pipeline: "{{dev | resolve}}"
 
 ## Gotchas
 
-- {{Something surprising, tricky, or non-obvious that a future developer working in this area should know}}
-- {{Edge case discovered during implementation that wasn't anticipated in the plan}}
+- {{Describe as invariants to maintain, not code locations. Example: 'The cache must be invalidated before the write, not after' — not 'Line 42 of cache.ts must run before line 50 of db.ts'}}
+- {{Edge case discovered during implementation — describe the behavior trigger and expected response}}
 
 ## Deferred Findings
 

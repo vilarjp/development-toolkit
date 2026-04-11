@@ -47,6 +47,20 @@ reviewed:
 - **Severity:** {{P0-Critical | P1-Important | P2-Minor}}
 - **Resolution:** {{What was changed or added to address this}}
 
+## Adversarial Review
+
+### Challenged Premises
+1. **{{Premise}}** — {{Why it might be wrong}} — Impact if wrong: {{what breaks}}
+
+### Unstated Assumptions Surfaced
+1. **{{Assumption}}** — {{Why it matters}} — Recommendation: {{verify/mitigate/accept}}
+
+### Missing Failure Modes
+1. **{{Scenario}}** — {{What could go wrong}} — Recommendation: {{add test/add handling/accept risk}}
+
+### Overall Assessment
+{{1-2 sentences from adversarial reviewer on plan robustness}}
+
 ## Adjustments Made
 
 ### Adjustment 1: {{What changed}}

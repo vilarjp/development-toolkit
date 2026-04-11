@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: Use when exploring a new feature, change, or problem before committing to a direction. Produces 01-brainstorm.md in a per-session spec directory with problem statement, goals, options, and recommended direction.
+description: Use when exploring a feature or problem before committing to a direction.
 ---
 
 # Brainstorm (Phase 1)
@@ -159,6 +159,37 @@ A 10-minute brainstorm that prevents 2 hours of rework is a bargain.
 
 ### "Let me just start coding"
 Code without a brainstorm is gambling.
+
+## Red Flags — Self-Check
+
+- You have only one option in Phase 1.3 (minimum is 2-3 genuinely different approaches)
+- The Non-Goals section is empty
+- An option has no cons listed
+- All options have the same pros/cons pattern (they are not different enough)
+- You skipped the self-review checklist in Phase 1.6
+- You wrote the artifact before the user confirmed the recommended direction
+- You did not ask any clarifying questions in Phase 1.1
+- Your problem statement is vague or aspirational rather than specific
+
+## Council Debate — Automatic Invocation
+
+When brainstorm detects a **high-stakes architectural decision**, invoke the council debate protocol automatically before finalizing the recommendation in Phase 1.4.
+
+### Trigger Conditions (ANY of these)
+
+- Multiple viable options with significant, irreversible trade-offs
+- The decision affects 3+ system areas or cross-cutting concerns
+- The choice constrains future architectural directions (lock-in)
+- Team members (if applicable) have expressed conflicting preferences
+
+### How to Invoke
+
+1. After Phase 1.3 (Generate Options), evaluate whether trigger conditions are met
+2. If triggered, load and execute the protocol in `references/council-debate.md`
+3. Incorporate the council's synthesis into Phase 1.4 (Recommend a Direction)
+4. Note in the brainstorm artifact: "Council debate was invoked for this decision"
+
+The human may also invoke the council explicitly at any point during brainstorm by requesting it.
 
 ## Transition
 

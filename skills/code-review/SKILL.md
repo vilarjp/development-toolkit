@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Use after implementation is complete and all tests pass. Dispatches conditional reviewer subagents (Sonnet/medium) with structured JSON findings, confidence gating, cross-reviewer deduplication, and pre-existing issue segregation. Produces 05-code-review.md.
+description: Use after implementation is complete and all tests pass.
 ---
 
 # Code Review (Phase 5)
@@ -45,9 +45,30 @@ Orchestrator (this skill) runs on the user's default model.
 
 Log which reviewers were dispatched and which were skipped (with reason) for the review document.
 
-### Phase 5.3 — Dispatch Reviewers
+### Phase 5.3 — Stage 1: Spec Compliance (Blocking Gate)
 
-DISPATCH all selected reviewers IN PARALLEL. Model: latest Sonnet, effort: medium.
+**Dispatch the plan-alignment-reviewer FIRST, alone.** Model: latest Sonnet, effort: medium.
+
+The plan-alignment-reviewer receives:
+1. Its agent definition (from `agents/plan-alignment-reviewer.md`)
+2. The findings schema contract (from `findings-schema.json`)
+3. The git diff
+4. Project context from Phase 0
+5. Implementation notes from `04-execution-log.md` (if available)
+6. Plan reference: `02-plan.md` and `03-revision.md`
+7. Intent summary: 2-3 line description of what this change does and why
+
+WAIT for the plan-alignment-reviewer to complete.
+
+**Gate condition:** If ANY P0 or P1 finding relates to missing or incomplete acceptance criteria — STOP. Do not proceed to Stage 2. Report findings and transition to fix-loop. There is no point reviewing code quality of code that does not exist yet.
+
+If the plan-alignment-reviewer passes (no P0/P1 spec gaps), proceed to Stage 2.
+
+**If `02-plan.md` does not exist** (resolve pipeline, trivial fix): skip Stage 1 entirely and proceed directly to Stage 2.
+
+### Phase 5.4 — Stage 2: Code Quality (Parallel)
+
+DISPATCH all remaining selected reviewers IN PARALLEL. Model: latest Sonnet, effort: medium.
 
 Each reviewer receives:
 1. Their agent definition (from `agents/<reviewer>.md`)
@@ -55,12 +76,12 @@ Each reviewer receives:
 3. The git diff (limited to their relevant scope)
 4. Project context from Phase 0
 5. Implementation notes from `04-execution-log.md` (if available)
-6. Plan reference: `02-plan.md` and `03-revision.md` (for plan-alignment and test reviewers)
+6. Plan reference: `02-plan.md` and `03-revision.md` (for test reviewer)
 7. Intent summary: 2-3 line description of what this change does and why
 
 **Instruction to each reviewer:** "Return a single JSON object matching the findings schema. Do NOT return markdown. Every finding must have all required fields."
 
-### Phase 5.4 — Collect and Process Findings
+### Phase 5.5 — Collect and Process Findings
 
 After all reviewers complete:
 
@@ -91,7 +112,7 @@ Confidence tiers:
 
 **Step 7: Collect metadata.** Union all `residual_risks` and `testing_gaps` from all reviewers.
 
-### Phase 5.5 — Write Review Artifact
+### Phase 5.6 — Write Review Artifact
 
 WRITE `05-code-review.md` using `templates/05-code-review.md`:
 
@@ -106,7 +127,7 @@ WRITE `05-code-review.md` using `templates/05-code-review.md`:
 
 Store the raw JSON findings alongside the markdown for the fix-loop to parse.
 
-### Phase 5.6 — Present Verdict
+### Phase 5.7 — Present Verdict
 
 **If P0 issues exist from blocking reviewers:**
 ```
@@ -141,6 +162,24 @@ Proceed to commit, or address P1 issues first?
 - The plan-alignment reviewer is the source of truth for "is this what we planned?"
 - Cross-scope findings are valid — a convention reviewer spotting a security issue reports it.
 - If a reviewer finds nothing, it returns empty findings. Do not fabricate issues.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Tests pass, so the code is correct" | Tests verify behavior the developer thought to test. They say nothing about what was missed. |
+| "I wrote it, I know it's correct" | That is exactly why you cannot review it. The reviewers provide independent verification. |
+| "The plan-alignment check is redundant — I followed the plan" | The plan-alignment reviewer catches drift you do not notice. It reads the plan and the code independently. |
+| "Security review is unnecessary — this doesn't touch auth" | The dispatch condition checks for auth, input, API, payment, data, and env. If any match, dispatch. Your judgment is not the filter. |
+
+## Red Flags — Self-Check
+
+- A reviewer's findings array is empty and you did not verify it actually read the code
+- You skipped Stage 1 (spec compliance) when 02-plan.md exists
+- You dispatched Stage 2 reviewers before Stage 1 completed
+- You suppressed a P0 finding below the confidence threshold
+- You fabricated findings to fill a quota (empty findings are valid)
+- The review document has no "What's Done Well" section (reviewers should note positives too)
 
 ## Transition
 

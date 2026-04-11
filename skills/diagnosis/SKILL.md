@@ -1,6 +1,6 @@
 ---
 name: diagnosis
-description: Use when investigating a bug, error, or regression. Dispatches the resolve-investigator agent (Opus/high) for structured root-cause analysis. Produces docs/YYYY-MM-DD-topic/01-diagnosis.md.
+description: Use when investigating a bug, error, or regression.
 ---
 
 # Diagnosis (Phase 1R)
@@ -72,6 +72,23 @@ Present the diagnosis summary:
 3. **Reproduction test is mandatory.** If untestable, document why.
 4. **Minimal fix only.** Address root cause and nothing else.
 5. **If deeper architectural problem is found,** classify as COMPLEX and let the user decide the approach.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "I can see the bug, let me just fix it" | You see a symptom. The root cause may be elsewhere. Investigate first. |
+| "The stack trace points directly to the problem" | Stack traces show where the failure surfaces, not where it originates. Trace backward. |
+| "This is a trivial typo, no investigation needed" | If it is truly trivial (>95% confidence), classify as TRIVIAL and fix. But verify confidence first. |
+| "The user already told me the root cause" | The user told you their hypothesis. Your job is to verify it with evidence. |
+
+## Red Flags — Self-Check
+
+- You proposed a fix before completing the investigation protocol
+- You have zero hypotheses documented
+- You skipped the reproduction test
+- You are modifying production code (you are read-only in this phase)
+- Your root cause explanation does not reference specific code you actually read
 
 ## Transition
 

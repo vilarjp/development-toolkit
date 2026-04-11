@@ -20,6 +20,9 @@ waves_completed: "{{N/N}}"
 - **Commit:** `{{short SHA}}` — {{commit message}}
 - **Tests passing:** {{YES / NO — details}}
 
+#### Noticed But Not Touching
+- _None this wave_
+
 ### Wave N — {{description}}
 
 - **Steps completed:** {{Step N}}
@@ -27,6 +30,9 @@ waves_completed: "{{N/N}}"
   - `{{path/to/test-file}}`
 - **Commit:** `{{short SHA}}` — {{commit message}}
 - **Tests passing:** {{YES / NO — details}}
+
+#### Noticed But Not Touching
+- _None this wave_
 
 ## Unexpected Decisions
 
@@ -38,3 +44,14 @@ waves_completed: "{{N/N}}"
 {{Infrastructure or configuration changes that used verification mode (run build + run existing tests) instead of full RED-GREEN-REFACTOR. List each file and why TDD was not applicable.}}
 
 - `{{path/to/config-file}}` — {{reason, e.g. "build configuration, no behavior to test"}}
+
+## Change Summary
+
+### Changes Made
+- {{Concise description of each logical change, grouped by intent}}
+
+### Things I Didn't Touch
+- {{Areas in scope but deliberately left unchanged, with reason — or "All scoped areas were addressed"}}
+
+### Potential Concerns
+- {{Risks, edge cases not fully covered, performance implications, migration needs — or "No concerns identified"}}

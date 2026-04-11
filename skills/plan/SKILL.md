@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Use when you have a brainstorm document and need to create a technical implementation plan. Dispatches research sub-agents (Opus/high), produces 02-plan.md with key decisions, mandatory test paths, and confidence check.
+description: Use after brainstorm to create the technical implementation plan.
 ---
 
 # Plan (Phase 2)
@@ -143,6 +143,25 @@ Complete, no placeholders. Standalone document.
 ## Boundary Discipline
 
 This phase does NOT: implement code, run tests, install dependencies, execute builds. It produces a plan. Period. If you feel the urge to "just try something," STOP — that is Phase 4 leaking into Phase 2.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "The brainstorm already covers the implementation details" | The brainstorm covers the what and why. The plan covers the how. They are different documents. |
+| "This change is simple enough to plan in my head" | If you can hold it in your head, you can write it down in 5 minutes. The plan catches what your head misses. |
+| "I'll figure out the steps as I go" | That is called hacking. The plan exists so subagents get clear, testable assignments. |
+| "Research agents are unnecessary for this codebase" | You do not know what you do not know. The research agents find existing patterns you would have reinvented. |
+
+## Red Flags — Self-Check
+
+- An implementation step has no acceptance criteria
+- An implementation step has no test strategy
+- A step is sized L or XL without being broken down further
+- A step title contains "and" (sign it should be split)
+- The wave table does not match the dependency graph
+- You skipped the research phase because "the codebase is simple"
+- A key decision has no rationale
 
 ## Transition
 

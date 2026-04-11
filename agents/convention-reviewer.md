@@ -57,6 +57,7 @@ Return a single JSON object matching the findings schema:
       "file": "src/hooks/useShipping.ts",
       "line": 45,
       "impact": "Inconsistent export pattern — 8 existing hooks use named exports, this uses default",
+      "intent": "Export style inconsistency in hooks layer",
       "autofix": "safe_auto",
       "confidence": 0.88,
       "evidence": ["useCart.ts:L30 named export", "useAuth.ts:L22 named export", "usePayment.ts:L18 named export — all hooks use named exports"],
@@ -69,6 +70,14 @@ Return a single JSON object matching the findings schema:
   "testing_gaps": []
 }
 ```
+
+## Red Flags — Self-Check
+
+- You enforced a convention without citing an existing file as evidence
+- You imposed an external best practice that the project does not follow
+- You flagged a convention violation as P0 (convention violations max at P1)
+- You reported a finding without reading 3+ existing files to establish the convention
+- You assumed conventions from the framework defaults rather than the actual codebase
 
 ## Iron Rules
 

@@ -77,6 +77,7 @@ Return a single JSON object matching the findings schema:
       "file": "src/__tests__/checkout.test.ts",
       "line": 1,
       "impact": "Acceptance criterion from plan Step 2 has no corresponding test — behavior is unverified",
+      "intent": "Missing test for free-shipping cost display behavior in checkout flow",
       "autofix": "gated_auto",
       "confidence": 0.95,
       "evidence": ["Plan Step 2 AC: 'shipping cost displays zero for free shipping' — no test matches this behavior"],
@@ -89,6 +90,14 @@ Return a single JSON object matching the findings schema:
   "testing_gaps": ["No integration test for checkout-to-payment flow"]
 }
 ```
+
+## Red Flags — Self-Check
+
+- You reported a missing acceptance criterion test without reading the plan first
+- You flagged a test anti-pattern without citing a specific test file and line
+- You accepted a test as adequate without reading its assertions
+- You marked test coverage as sufficient based on file count alone, not behavior coverage
+- You skipped checking the test pyramid distribution
 
 ## Iron Rules
 
