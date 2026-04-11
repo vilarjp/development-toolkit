@@ -2,7 +2,7 @@
 set -uo pipefail
 
 # Stop guard hook — prevents premature session termination during active pipelines.
-# Updated for v2.2.0 artifact numbering (05-code-review.md).
+# Updated for current artifact numbering (05-code-review.md).
 #
 # Cooldown: If fired within last 60 seconds, allow stop to prevent infinite loops
 # at approval gates.
@@ -38,11 +38,20 @@ fi
 HAS_BRAINSTORM=false
 HAS_REVIEW=false
 HAS_UNCOMMITTED=false
+START_STATUS=""
 
-[ -f "$SPEC_DIR/01-brainstorm.md" ] || [ -f "$SPEC_DIR/01-diagnosis.md" ] && HAS_BRAINSTORM=true
+if [ -f "$SPEC_DIR/01-brainstorm.md" ]; then
+  HAS_BRAINSTORM=true
+  START_STATUS=$(grep -m1 "^status:" "$SPEC_DIR/01-brainstorm.md" 2>/dev/null | sed 's/status:\s*//' | tr -d '"' | tr -d "'" | xargs)
+elif [ -f "$SPEC_DIR/01-diagnosis.md" ]; then
+  HAS_BRAINSTORM=true
+  START_STATUS=$(grep -m1 "^status:" "$SPEC_DIR/01-diagnosis.md" 2>/dev/null | sed 's/status:\s*//' | tr -d '"' | tr -d "'" | xargs)
+fi
 
-# Check both v2.2.0 (05) and legacy (04) numbering
-[ -f "$SPEC_DIR/05-code-review.md" ] || [ -f "$SPEC_DIR/04-code-review.md" ] && HAS_REVIEW=true
+# Check both current (05) and legacy (04) numbering
+if [ -f "$SPEC_DIR/05-code-review.md" ] || [ -f "$SPEC_DIR/04-code-review.md" ]; then
+  HAS_REVIEW=true
+fi
 
 # Check for uncommitted changes (excluding docs/)
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -52,8 +61,8 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   fi
 fi
 
-# Pipeline active and incomplete: brainstorm/diagnosis exists but no review
-if [ "$HAS_BRAINSTORM" = true ] && [ "$HAS_REVIEW" = false ]; then
+# Pipeline active and incomplete: approved brainstorm/diagnosis exists but no review
+if [ "$HAS_BRAINSTORM" = true ] && [ "$START_STATUS" = "approved" ] && [ "$HAS_REVIEW" = false ]; then
   date +%s > "$COOLDOWN_FILE"
   echo "STOP BLOCKED by development-toolkit stop-guard:" >&2
   echo "  Active pipeline detected in $SPEC_DIR." >&2

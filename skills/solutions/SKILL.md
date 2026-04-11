@@ -58,7 +58,7 @@ Each decision should include the rationale and trade-off accepted.
 ### Step 3 — Write Artifact
 
 1. WRITE `06-solutions.md` in the active spec directory using `templates/06-solutions.md`
-2. SET frontmatter: `status: draft`, `date`, `topic`, `pipeline` (dev or resolve)
+2. SET frontmatter: `status: approved`, `date`, `topic`, `pipeline` (dev or resolve)
 3. Keep it concise — this is a reference document, not a narrative
 
 **Quality checks:**

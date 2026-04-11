@@ -17,28 +17,22 @@ Execute these phases in strict order. Do not skip ahead. Do not write the artifa
 
 ### Phase 1.1 — Understand the Request
 
-READ the user's description. Then ASK clarifying questions using the structured interview protocol below.
+READ the user's description. Then ASK clarifying questions only until you have enough information to state the problem, who is affected, and what success looks like.
 
-**Mandatory questions (ALWAYS asked, one at a time, multiple-choice):**
+Cover these areas if they are not already clear:
 
 1. **WHY** — What problem does this solve?
-   - Options: UX friction / Missing capability / Technical debt / Performance issue / Bug or regression / Other: ___
 2. **WHO** — Who is affected?
-   - Options: All users / Specific user type: ___ / Developers or operators / Internal systems / Other: ___
-3. **OPEN** — Anything else I should know?
-   - Options: Nothing else / More context (please share) / There are constraints or gotchas
-
-**Conditional follow-up questions (asked only if mandatory answers are sparse):**
-
-4. Current state — How does it work today?
-5. Success criteria — How will you know it is working?
+3. **CURRENT STATE** — How does it work today?
+4. **SUCCESS** — How will you know it is working?
+5. **CONSTRAINTS / GOTCHAS** — Anything that limits the solution space?
 
 **Rules:**
 - ASK ONE question at a time. NEVER batch.
-- ALWAYS USE multiple-choice format with an "Other" option.
+- Prefer multiple-choice format when natural options exist. If the real answer space is open-ended, ask a direct short question instead.
 - Maximum 5 questions total. State remaining unknowns as assumptions.
 - STOP early if answers are clear from context.
-- Mark the recommended option with `[Recommended]`.
+- Mark the recommended option with `[Recommended]` only when there is an honest recommendation.
 
 ### Phase 1.2 — Explore the Problem Space
 
@@ -62,7 +56,12 @@ After gathering information, PRODUCE:
 
 ### Phase 1.3 — Generate Options
 
-PRODUCE 2-3 genuinely different approaches. "Different" means meaningfully different trade-offs, not variations of the same idea.
+PRODUCE genuinely different approaches when multiple credible paths exist. "Different" means meaningfully different trade-offs, not variations of the same idea.
+
+If only one credible path exists, DO NOT manufacture fake alternatives. Instead:
+- document the single credible approach
+- name the discarded pseudo-alternatives briefly
+- explain why they are not credible enough to count as real options
 
 For each option:
 - **Name, Description** (2-3 sentences)
@@ -75,6 +74,7 @@ For each option:
 - If one option is obviously superior, find its downside.
 - Every option MUST have cons.
 - Options MUST consider existing codebase patterns from project context.
+- Synthetic options are forbidden. If there is only one real option, say so explicitly.
 
 ### Phase 1.4 — Recommend a Direction
 
@@ -141,7 +141,7 @@ If the user accepts, create the diagram as part of the brainstorm artifact (inli
 Steps:
 1. CREATE spec directory: `docs/YYYY-MM-DD-short-description/` (today's date, kebab-case)
 2. WRITE `01-brainstorm.md` using the template from `templates/01-brainstorm.md`
-3. SET frontmatter: `status: draft`, `complexity`, `date`, `audience: "Technical team (developer or team members)"`
+3. SET frontmatter: `status: approved`, `complexity`, `date`, `audience: "Technical team (developer or team members)"`
 4. REPLACE all `{{placeholder}}` tokens with actual content
 
 The artifact MUST be complete — no placeholders, no TODOs. It MUST be a standalone document readable without conversation context.
@@ -162,13 +162,13 @@ Code without a brainstorm is gambling.
 
 ## Red Flags — Self-Check
 
-- You have only one option in Phase 1.3 (minimum is 2-3 genuinely different approaches)
+- You manufactured fake options in Phase 1.3 just to satisfy the template
 - The Non-Goals section is empty
 - An option has no cons listed
 - All options have the same pros/cons pattern (they are not different enough)
 - You skipped the self-review checklist in Phase 1.6
 - You wrote the artifact before the user confirmed the recommended direction
-- You did not ask any clarifying questions in Phase 1.1
+- You skipped clarification even though why / who / success / constraints were not clear
 - Your problem statement is vague or aspirational rather than specific
 
 ## Council Debate — Automatic Invocation

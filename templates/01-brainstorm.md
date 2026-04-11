@@ -1,7 +1,7 @@
 ---
 phase: brainstorm
 date: "{{date}}"
-status: draft
+status: "{{status}}"
 topic: "{{topic}}"
 audience: "Technical team (developer or team members)"
 complexity: "{{LOW | MEDIUM | HIGH}}"

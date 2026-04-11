@@ -1,7 +1,7 @@
 ---
 phase: execution
 date: "{{date}}"
-status: draft
+status: "{{status}}"
 topic: "{{topic}}"
 pipeline: "{{dev | resolve}}"
 waves_completed: "{{N/N}}"
@@ -11,9 +11,9 @@ waves_completed: "{{N/N}}"
 
 ## Execution Summary
 
-### Wave 1 — {{description}}
+### Item 1 — {{description}}
 
-- **Steps completed:** {{Step 1, Step 2}}
+- **Steps completed:** {{Step 1, Step 2}} {{or diagnosis-driven fix scope}}
 - **Test files written:**
   - `{{path/to/test-file}}`
   - `{{path/to/test-file}}`
@@ -23,7 +23,7 @@ waves_completed: "{{N/N}}"
 #### Noticed But Not Touching
 - _None this wave_
 
-### Wave N — {{description}}
+### Item N — {{description}}
 
 - **Steps completed:** {{Step N}}
 - **Test files written:**

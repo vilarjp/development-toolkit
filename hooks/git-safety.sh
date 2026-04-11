@@ -1,13 +1,27 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-# Git safety hook — blocks write operations on protected branches (master/main)
+# Git safety hook — blocks write operations on protected branches
 # and blocks pushes targeting protected remote branches from any branch.
 #
 # Receives the Bash tool input (the command string) as $1.
 # Exit 0 = allow, Exit 1 = block.
 
 TOOL_INPUT="${1:-}"
+PROTECTED_BRANCH_REGEX='^(main|master|production|prod|stable|live|trunk)$'
+
+is_protected_branch() {
+  local branch="${1:-}"
+  [[ -n "$branch" && "$branch" =~ $PROTECTED_BRANCH_REGEX ]]
+}
+
+strip_ref_prefix() {
+  local ref="${1:-}"
+  ref="${ref#refs/heads/}"
+  ref="${ref#remotes/}"
+  ref="${ref#origin/}"
+  printf '%s\n' "$ref"
+}
 
 # If no input provided, allow
 if [[ -z "$TOOL_INPUT" ]]; then
@@ -19,17 +33,23 @@ if [[ "$TOOL_INPUT" != git\ * && "$TOOL_INPUT" != *\|*git\ * && "$TOOL_INPUT" !=
   exit 0
 fi
 
-# --- Check 1: Block pushes targeting origin main/master from ANY branch ---
-# Matches: git push origin main, git push origin master, git push --force origin main, etc.
-if echo "$TOOL_INPUT" | grep -qE 'git\s+push\s+.*origin\s+(main|master)(\s|$)'; then
-  echo "BLOCKED by development-toolkit git-safety hook:"
-  echo "  Pushing to origin main/master is not allowed."
-  echo "  Push to a feature branch instead: git push -u origin <branch-name>"
-  exit 1
+# --- Check 1: Block pushes targeting protected branches from ANY branch ---
+#
+# Examples that should be blocked:
+# - git push origin main
+# - git push origin HEAD:main
+# - git push upstream feature:production
+# - git push --force-with-lease origin refs/heads/topic:refs/heads/live
+if [[ "$TOOL_INPUT" =~ git[[:space:]]+push([[:space:]]|$) ]]; then
+  TARGET_REFS="$(printf '%s\n' "$TOOL_INPUT" | grep -oE '([[:alnum:]_./-]+:)?(refs/heads/)?(main|master|production|prod|stable|live|trunk)([[:space:]]|$)' || true)"
+  if [[ -n "$TARGET_REFS" ]]; then
+    echo "BLOCKED by development-toolkit git-safety hook:"
+    echo "  Pushing to a protected branch is not allowed."
+    echo "  Protected branch names include: main, master, production, prod, stable, live, trunk."
+    echo "  Push to a feature branch instead: git push -u <remote> <branch-name>"
+    exit 1
+  fi
 fi
-
-# Also catch: git push (with upstream set to main/master)
-# We check this further below when we know the branch.
 
 # --- Check 2: Block git write operations when on a protected branch ---
 
@@ -48,7 +68,17 @@ if [[ -z "$CURRENT_BRANCH" ]]; then
 fi
 
 # Only enforce on protected branches
-if [[ "$CURRENT_BRANCH" != "main" && "$CURRENT_BRANCH" != "master" ]]; then
+if ! is_protected_branch "$CURRENT_BRANCH"; then
+  if [[ "$TOOL_INPUT" =~ git[[:space:]]+push([[:space:]]|$) ]]; then
+    UPSTREAM_BRANCH="$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || echo "")"
+    UPSTREAM_BRANCH="$(strip_ref_prefix "$UPSTREAM_BRANCH")"
+    if is_protected_branch "$UPSTREAM_BRANCH"; then
+      echo "BLOCKED by development-toolkit git-safety hook:"
+      echo "  This branch pushes to protected upstream '$UPSTREAM_BRANCH'."
+      echo "  Repoint the upstream or push to a non-protected branch explicitly."
+      exit 1
+    fi
+  fi
   exit 0
 fi
 
@@ -59,7 +89,7 @@ WRITE_OPS="commit|push|merge|rebase"
 if echo "$TOOL_INPUT" | grep -qE "git\s+($WRITE_OPS)(\s|$)"; then
   echo "BLOCKED by development-toolkit git-safety hook:"
   echo "  You are on the protected branch '$CURRENT_BRANCH'."
-  echo "  Git write operations (commit, push, merge, rebase) are not allowed on main/master."
+  echo "  Git write operations (commit, push, merge, rebase) are not allowed on protected branches."
   echo "  Create a feature branch first: git checkout -b <branch-name>"
   exit 1
 fi

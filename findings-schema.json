@@ -56,7 +56,7 @@
           },
           "autofix": {
             "enum": ["safe_auto", "gated_auto", "manual", "advisory"],
-            "description": "safe_auto=deterministic fix no behavior change, gated_auto=concrete fix changes behavior/contracts, manual=requires design decisions, advisory=report only"
+            "description": "safe_auto=provably behavior-preserving fix that can be applied without human approval, gated_auto=concrete fix that changes behavior/contracts or whose safety is uncertain, manual=requires design decisions, advisory=report only"
           },
           "confidence": {
             "type": "number",
@@ -84,6 +84,11 @@
           }
         }
       }
+    },
+    "positives": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Specific positive observations about the diff. These feed the review document's 'What's Done Well' section."
     },
     "residual_risks": {
       "type": "array",

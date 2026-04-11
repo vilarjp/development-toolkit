@@ -1,7 +1,7 @@
 ---
 phase: plan
 date: "{{date}}"
-status: draft
+status: "{{status}}"
 topic: "{{topic}}"
 origin: "{{spec_dir}}/01-brainstorm.md"
 ---

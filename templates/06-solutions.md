@@ -1,7 +1,7 @@
 ---
 phase: solutions
 date: "{{date}}"
-status: draft
+status: "{{status}}"
 topic: "{{topic}}"
 pipeline: "{{dev | resolve}}"
 ---

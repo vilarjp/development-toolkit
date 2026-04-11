@@ -41,7 +41,7 @@ if [ -d "docs" ]; then
     [ -f "$LATEST_SPEC/01-brainstorm.md" ] && HAS_START=true
     [ -f "$LATEST_SPEC/01-diagnosis.md" ] && HAS_START=true && IS_RESOLVE=true
 
-    # Check for review artifact (v2.2.0 numbering: 05-code-review.md)
+    # Check for review artifact (current numbering: 05-code-review.md)
     [ -f "$LATEST_SPEC/05-code-review.md" ] && HAS_REVIEW=true
     # Also check legacy numbering for backwards compatibility
     [ -f "$LATEST_SPEC/04-code-review.md" ] && HAS_REVIEW=true
@@ -53,9 +53,9 @@ if [ -d "docs" ]; then
       [ -f "$LATEST_SPEC/01-diagnosis.md" ] && START_FILE="$LATEST_SPEC/01-diagnosis.md"
 
       if [ -n "$START_FILE" ]; then
-        # Check status field — stalled if approved but no review
+        # Check status field — stalled only if approved and no review
         STATUS=$(grep -m1 "^status:" "$START_FILE" 2>/dev/null | sed 's/status:\s*//' | tr -d '"' | tr -d "'" | xargs)
-        if [ "$STATUS" = "approved" ] || [ "$STATUS" = "draft" ]; then
+        if [ "$STATUS" = "approved" ]; then
           PIPELINE_TYPE="dev"
           [ "$IS_RESOLVE" = true ] && PIPELINE_TYPE="resolve"
           STALLED_MSG="STALLED PIPELINE DETECTED in $LATEST_SPEC ($PIPELINE_TYPE pipeline). Resume or start fresh."

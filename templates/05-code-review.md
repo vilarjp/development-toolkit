@@ -1,7 +1,7 @@
 ---
 phase: code-review
 date: "{{date}}"
-status: draft
+status: "{{status}}"
 topic: "{{topic}}"
 reviewers_dispatched:
   - "{{reviewer-name}}"

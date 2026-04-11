@@ -1,7 +1,7 @@
 ---
 phase: diagnosis
 date: "{{date}}"
-status: draft
+status: "{{status}}"
 topic: "{{topic}}"
 severity: "{{TRIVIAL | STANDARD | COMPLEX}}"
 ---
