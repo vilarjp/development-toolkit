@@ -24,7 +24,7 @@ skills/                Skill definitions (SKILL.md per skill)
   commit-push/           Phase 6: lint gate + PR description
   pr-feedback/           Post-pipeline: PR thread resolution (Sonnet/medium)
   solutions/             Phase 7: learnings capture
-agents/                Agent definitions for reviewer and investigator subagents
+agents/                Agent definitions for reviewer, investigator, and adversarial subagents
 hooks/                 Session, pre-tool, and stop hooks
 templates/             Document templates for spec artifacts (01 through 06)
 ```
@@ -68,8 +68,8 @@ Pipeline detection: check for `docs/YYYY-MM-DD-*/` directories. Stalled if `01-*
 - Configuration in `hooks/hooks.json`.
 - Scripts must be executable bash.
 - Git-safety protection is non-negotiable — do not weaken.
-- Stop-guard must check both v2.1.0 (05) and legacy (04) numbering.
+- Stop-guard must check both v2.2.0 (05) and legacy (04) numbering.
 
 ## Findings Schema
 
-Reviewers produce structured JSON per `findings-schema.json`. The code-review orchestrator adds: `id` (fingerprint), `reviewers[]`, `reviewer_agreement`, `original_confidence`. Confidence below 0.60 is suppressed (P0 exception at 0.50+).
+Reviewers produce structured JSON per `findings-schema.json`. Every finding requires an `intent` field — a file/line-independent description meaningful even after refactoring. The code-review orchestrator adds: `id` (fingerprint), `reviewers[]`, `reviewer_agreement`, `original_confidence`. Confidence below 0.60 is suppressed (P0 exception at 0.50+).

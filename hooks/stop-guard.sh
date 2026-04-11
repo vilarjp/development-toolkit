@@ -2,7 +2,7 @@
 set -uo pipefail
 
 # Stop guard hook — prevents premature session termination during active pipelines.
-# Updated for v2.1.0 artifact numbering (05-code-review.md).
+# Updated for v2.2.0 artifact numbering (05-code-review.md).
 #
 # Cooldown: If fired within last 60 seconds, allow stop to prevent infinite loops
 # at approval gates.
@@ -41,7 +41,7 @@ HAS_UNCOMMITTED=false
 
 [ -f "$SPEC_DIR/01-brainstorm.md" ] || [ -f "$SPEC_DIR/01-diagnosis.md" ] && HAS_BRAINSTORM=true
 
-# Check both v2.1.0 (05) and legacy (04) numbering
+# Check both v2.2.0 (05) and legacy (04) numbering
 [ -f "$SPEC_DIR/05-code-review.md" ] || [ -f "$SPEC_DIR/04-code-review.md" ] && HAS_REVIEW=true
 
 # Check for uncommitted changes (excluding docs/)
